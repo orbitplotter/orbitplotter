@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>3D Plotter with Pyodide</title>
+    <!-- Latest stable Plotly version -->
+    <script src="https://cdn.plot.ly/plotly-2.31.1.min.js"></script>
+    <!-- Pyodide -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+</head>
+<body>
+    <h1>3D Plotter</h1>
+    <div id="plot" style="width:700px;height:700px;"></div>
+    <button onclick="plotPython()">Plot Random 3D Data</button>
+
+    <script>
+        // Load Pyodide
+        let pyodideReadyPromise = loadPyodide({
+            indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
+        });
+
+        async function plotPython() {
+            let pyodide = await pyodideReadyPromise;
+
+            // Load numpy package first
+            await pyodide.loadPackage('numpy');
+
+            // Python code to generate 3D points
+            let pythonCode = `
+import numpy as np
+import json
+x = np.random.rand(50)
+y = np.random.rand(50)
+z = np.random.rand(50)
+json.dumps({'x': x.tolist(), 'y': y.tolist(), 'z': z.tolist()})
+`;
+
+            try {
+                let result = await pyodide.runPythonAsync(pythonCode);
+                let data = JSON.parse(result);
+
+                // Plot with Plotly
+                Plotly.newPlot('plot', [{
+                    x: data.x,
+                    y: data.y,
+                    z: data.z,
+                    mode: 'markers+lines',
+                    type: 'scatter3d'
+                }]);
+            } catch (err) {
+                console.error("Python error:", err);
+                alert("Failed to plot. Check console for details.");
+            }
+        }
+    </script>
+</body>
+</html>
