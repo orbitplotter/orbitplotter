@@ -1,57 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>3D Plotter with Pyodide</title>
-    <!-- Latest stable Plotly version -->
-    <script src="https://cdn.plot.ly/plotly-2.31.1.min.js"></script>
-    <!-- Pyodide -->
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+  <meta charset="UTF-8">
+  <title>Two-Body Orbit Plotter</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>3D Plotter</h1>
-    <div id="plot" style="width:700px;height:700px;"></div>
-    <button onclick="plotPython()">Plot Random 3D Data</button>
+  <h1>Two-Body Orbit Plotter</h1>
 
-    <script>
-        // Load Pyodide
-        let pyodideReadyPromise = loadPyodide({
-            indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
-        });
+  <div class="container">
+    <!-- Input panel -->
+    <div class="input-container">
+      <label>x position (km):
+        <input id="xpos" type="number" value="8070">
+      </label>
+      <label>y position (km):
+        <input id="ypos" type="number" value="0">
+      </label>
+      <label>z position (km):
+        <input id="zpos" type="number" value="0">
+      </label>
 
-        async function plotPython() {
-            let pyodide = await pyodideReadyPromise;
+      <label>x velocity (km/s):
+        <input id="xvel" type="number" value="0">
+      </label>
+      <label>y velocity (km/s):
+        <input id="yvel" type="number" value="7.025">
+      </label>
+      <label>z velocity (km/s):
+        <input id="zvel" type="number" value="0">
+      </label>
 
-            // Load numpy package first
-            await pyodide.loadPackage('numpy');
+      <button id="plotBtn">Plot Orbit</button>
+    </div>
 
-            // Python code to generate 3D points
-            let pythonCode = `
-import numpy as np
-import json
-x = np.random.rand(50)
-y = np.random.rand(50)
-z = np.random.rand(50)
-json.dumps({'x': x.tolist(), 'y': y.tolist(), 'z': z.tolist()})
-`;
+    <!-- Plot panel -->
+    <div class="plot-container">
+      <canvas id="orbitCanvas" width="400" height="400"></canvas>
+    </div>
+  </div>
 
-            try {
-                let result = await pyodide.runPythonAsync(pythonCode);
-                let data = JSON.parse(result);
-
-                // Plot with Plotly
-                Plotly.newPlot('plot', [{
-                    x: data.x,
-                    y: data.y,
-                    z: data.z,
-                    mode: 'markers+lines',
-                    type: 'scatter3d'
-                }]);
-            } catch (err) {
-                console.error("Python error:", err);
-                alert("Failed to plot. Check console for details.");
-            }
-        }
-    </script>
+  <!-- Orbit JS -->
+  <script src="2_body_plot.js"></script>
 </body>
 </html>
