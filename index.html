@@ -1,46 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Two-Body Orbit Plotter</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orbit Visualization Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>Two-Body Orbit Plotter</h1>
+  <header>
+    <div class="site-name">Orbit Plotter</div>
+    <nav>
+      <a href="#">Documentation</a>
+      <a href="#">Learn</a>
+      <a href="#">Resources</a>
+    </nav>
+  </header>
 
-  <div class="container">
-    <!-- Input panel -->
-    <div class="input-container">
-      <label>x position (km):
-        <input id="xpos" type="number" value="8070">
-      </label>
-      <label>y position (km):
-        <input id="ypos" type="number" value="0">
-      </label>
-      <label>z position (km):
-        <input id="zpos" type="number" value="0">
-      </label>
+  <main class="layout">
+    <div class="left-column">
+      <div class="type">
+        <h3>Type of Orbit</h3>
+          <select id="orbitType" name="orbitType">
+          <option value="2body">2 Body</option>
+          <option value="cr3bp">CR3BP</option>
+          <option value="relativemotion">Relative Motion</option>
+          </select>
+      </div>
+      <div class="inputs">
+        <h3>Inputs</h3>
+          <input type="text" name="xpos" placeholder="x-position (km)">
+          <input type="text" name="ypos" placeholder="y-position (km)">
+          <input type="text" name="zpos" placeholder="z-position (km)">
+          <input type="text" name="xvel" placeholder="x-velocity (km/s)">
+          <input type="text" name="yvel" placeholder="y-velocity (km/s)">
+          <input type="text" name="zvel" placeholder="z-velocity (km/s)">
 
-      <label>x velocity (km/s):
-        <input id="xvel" type="number" value="0">
-      </label>
-      <label>y velocity (km/s):
-        <input id="yvel" type="number" value="7.025">
-      </label>
-      <label>z velocity (km/s):
-        <input id="zvel" type="number" value="0">
-      </label>
+          <input type="text" name="e" placeholder="eccentricity">
+          <input type="text" name="a" placeholder="semi-major axis">
+          <input type="text" name="i" placeholder="inclination">
+          <input type="text" name="w" placeholder="argument of perigee">
+          <input type="text" name="W" placeholder="RAAN">
 
-      <button id="plotBtn">Plot Orbit</button>
+          <button type="submit">Run</button>
+      </div>
     </div>
 
-    <!-- Plot panel -->
-    <div class="plot-container">
-      <canvas id="orbitCanvas" width="400" height="400"></canvas>
+    <div class="center">
+      <div class="main-plot">
+        <h3>Main Plot</h3>
+        <div id="mainPlot"></div>
+      </div>
     </div>
-  </div>
 
-  <!-- Orbit JS -->
+    <div class="right-column">
+      <div class="conserved">
+        <h3>Conserved Quantities</h3>
+        <div id="conservedPlot"></div>
+      </div>
+      <div class="errors">
+        <h3>Errors</h3>
+        <div id="errorPlot"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Made By: Josh Taylor, Zack Fraser</p>
+    <p>Contact Us: orbitplotter@gmail.com</p>
+  </footer>
+
+  <!-- ===== JS Placeholders ===== -->
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
   <script src="2_body_plot.js"></script>
+  
+  <script src="inputs.js"></script>
+  <script src="conserved.js"></script>
+  <script src="errors.js"></script>
 </body>
 </html>

@@ -1,33 +1,222 @@
-body {
-  padding: 20px;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
 }
 
-h1 {
-  margin-bottom: 20px; /* space between title and main content */
-}
-
-.container {
-  display: flex;            /* puts inputs + plot side by side */
-  align-items: flex-start;  /* align them at the top */
-  gap: 40px;                /* spacing between inputs and canvas */
-}
-
-.input-container {
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background-color: #000; /* Dark background */
+  color: #e0e0e0; /* Light text */
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  width: 200px;
+  min-height: 0;
 }
 
-.plot-container {
-  width: 400px;
-  height: 400px;
-  border: 2px solid #333;
-  background-color: #f9f9f9;
+/* HEADER */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #111; /* Dark gray header */
+  padding: 0.8rem 1.5rem;
+  height: 8vh;
+  min-height: 40px;
+  flex-shrink: 0;
+  border-bottom: 2px solid #00bcd4; /* Cyan accent line */
 }
 
-canvas {
+header .site-name {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #00bcd4;
+}
+
+header nav a {
+  color: #e0e0e0;
+  margin-left: 1rem;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+header nav a:hover {
+  color: #ff9800; /* Warm orange hover */
+}
+
+/* GRID LAYOUT */
+.layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 15% 1fr 25%;
+  grid-template-rows: 1fr;
+  gap: 1%;
+  padding: 1%;
+  min-height: 0;
+}
+
+/* LEFT COLUMN */
+.left-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.type {
+  background-color: #1a1a1a;
+  text-align: center;
+  padding: 1vh;
+  border-radius: 0.8vh;
+  height: 12%;
+  min-height: 40px;
+  border: 1px solid #333;
+}
+
+.inputs {
+  background-color: #1a1a1a;
+  border-radius: 0.8vh;
+  margin-top: 1vh;
+  padding: 1vh;
+  flex: 1;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+/* CENTER MAIN PLOT */
+.center {
+  background-color: #1a1a1a;
+  border-radius: 0.8vh;
+  padding: 1vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid #333;
+}
+
+.main-plot {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-align: center;
+  min-height: 0;
+}
+
+#mainPlot {
+  flex: 1;
+  margin-top: 1vh;
+  background: #0d0d0d;
+  border-radius: 0.8vh;
+  border: 1px solid #222;
+}
+
+/* RIGHT COLUMN */
+.right-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0;
+}
+
+.conserved,
+.errors {
+  background-color: #1a1a1a;
+  border-radius: 0.8vh;
+  padding: 1vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-height: 0;
+  border: 1px solid #333;
+}
+
+.conserved {
+  margin-bottom: 2%;
+}
+
+#conservedPlot,
+#errorPlot {
   width: 100%;
   height: 100%;
-  display: block;
+  background: #0d0d0d;
+  border-radius: 0.8vh;
+  margin-top: 1vh;
+  border: 1px solid #222;
+}
+
+/* FOOTER */
+footer {
+  background-color: #111;
+  text-align: center;
+  padding: 0.5rem;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  height: 8vh;
+  min-height: 40px;
+  color: #aaa;
+  border-top: 2px solid #00bcd4;
+}
+
+/* DROPDOWNS & INPUTS */
+select, input, button {
+  background-color: #0d0d0d;
+  color: #e0e0e0;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+select:hover, button:hover, input:hover {
+  border-color: #00bcd4;
+}
+
+button {
+  background-color: #00bcd4;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background-color: #0097a7;
+}
+
+/* RESPONSIVE SCALING */
+@media (max-width: 1200px) {
+  header .site-name {
+    font-size: 1.1rem;
+  }
+  header nav a {
+    font-size: 0.8rem;
+  }
+  .layout {
+    grid-template-columns: 18% 1fr 27%;
+    gap: 0.8%;
+  }
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 22% 1fr 28%;
+  }
+}
+
+@media (max-width: 700px) {
+  .layout {
+    grid-template-columns: 100%;
+    grid-template-rows: 1fr auto;
+    overflow-y: auto;
+  }
+  .right-column {
+    flex-direction: row;
+    gap: 2%;
+  }
+  .conserved,
+  .errors {
+    flex: 1;
+  }
 }
