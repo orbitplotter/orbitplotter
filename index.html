@@ -32,9 +32,9 @@
         <!-- Dynamic inputs will appear here -->
       </div>
     </div>
+
     <div class="center">
       <div class="main-plot">
-        
         <div id="mainPlot"></div>
       </div>
     </div>
@@ -102,35 +102,31 @@
     };
 
     function updateInputs() {
-  const selected = orbitTypeSelect.value;
-  inputsDiv.style.opacity = 0;
-  setTimeout(() => {
-    inputsDiv.innerHTML = inputGroups[selected];
-    inputsDiv.style.opacity = 1;
+      const selected = orbitTypeSelect.value;
+      inputsDiv.style.opacity = 0;
+      setTimeout(() => {
+        inputsDiv.innerHTML = inputGroups[selected];
+        inputsDiv.style.opacity = 1;
 
-    // ✅ Attach the Run button handler *after* the new inputs are added
-    const btn = inputsDiv.querySelector("button");
-    if (btn) {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        simulateOrbit();
-      });
+        const btn = inputsDiv.querySelector("button");
+        if (btn) {
+          btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            simulateOrbit();
+          });
+        }
+
+        if (window.Plotly?.Plots?.resize) {
+          Plotly.Plots.resize(document.getElementById('mainPlot'));
+        }
+      }, 200);
     }
-
-    // Resize Plotly plot after input swap
-    if (window.Plotly && Plotly.Plots && typeof Plotly.Plots.resize === 'function') {
-      Plotly.Plots.resize(document.getElementById('mainPlot'));
-    }
-  }, 200);
-}
-
 
     orbitTypeSelect.addEventListener("change", updateInputs);
     updateInputs();
 
-    // Resize on window change
     window.addEventListener('resize', () => {
-      if (window.Plotly && Plotly.Plots && typeof Plotly.Plots.resize === 'function') {
+      if (window.Plotly?.Plots?.resize) {
         Plotly.Plots.resize(document.getElementById('mainPlot'));
       }
     });
@@ -138,4 +134,3 @@
   </script>
 </body>
 </html>
-
