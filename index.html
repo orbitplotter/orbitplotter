@@ -21,34 +21,20 @@
     <div class="left-column">
       <div class="type">
         <h3>Type of Orbit</h3>
-          <select id="orbitType" name="orbitType">
+        <select id="orbitType" name="orbitType">
           <option value="2body">2 Body</option>
           <option value="cr3bp">CR3BP</option>
           <option value="relativemotion">Relative Motion</option>
-          </select>
+        </select>
       </div>
+
       <div class="inputs">
-        <h3>Inputs</h3>
-          <input type="text" name="xpos" placeholder="x-position (km)">
-          <input type="text" name="ypos" placeholder="y-position (km)">
-          <input type="text" name="zpos" placeholder="z-position (km)">
-          <input type="text" name="xvel" placeholder="x-velocity (km/s)">
-          <input type="text" name="yvel" placeholder="y-velocity (km/s)">
-          <input type="text" name="zvel" placeholder="z-velocity (km/s)">
-
-          <input type="text" name="e" placeholder="eccentricity">
-          <input type="text" name="a" placeholder="semi-major axis">
-          <input type="text" name="i" placeholder="inclination">
-          <input type="text" name="w" placeholder="argument of perigee">
-          <input type="text" name="W" placeholder="RAAN">
-
-          <button type="submit">Run</button>
+        <!-- Dynamic inputs will appear here -->
       </div>
     </div>
-
     <div class="center">
       <div class="main-plot">
-        <h3>Main Plot</h3>
+        
         <div id="mainPlot"></div>
       </div>
     </div>
@@ -70,12 +56,86 @@
     <p>Contact Us: orbitplotter@gmail.com</p>
   </footer>
 
-  <!-- ===== JS Placeholders ===== -->
+  <!-- ===== JS Libraries ===== -->
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
-  <script src="2_body_plot.js"></script>
-  
-  <script src="inputs.js"></script>
+  <script src="Main_plot.js"></script>
   <script src="conserved.js"></script>
   <script src="errors.js"></script>
+
+  <!-- ===== Dynamic Input Script ===== -->
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const orbitTypeSelect = document.getElementById("orbitType");
+    const inputsDiv = document.querySelector(".inputs");
+
+    const inputGroups = {
+      "2body": `
+        <h3>Inputs – Two Body</h3>
+        <input type="text" name="xpos" placeholder="x-position (km)">
+        <input type="text" name="ypos" placeholder="y-position (km)">
+        <input type="text" name="zpos" placeholder="z-position (km)">
+        <input type="text" name="xvel" placeholder="x-velocity (km/s)">
+        <input type="text" name="yvel" placeholder="y-velocity (km/s)">
+        <input type="text" name="zvel" placeholder="z-velocity (km/s)">
+        <button type="submit">Run</button>
+      `,
+      "cr3bp": `
+        <h3>Inputs – CR3BP</h3>
+        <input type="text" name="mu" placeholder="μ (mass ratio)">
+        <input type="text" name="xpos" placeholder="x-position">
+        <input type="text" name="ypos" placeholder="y-position">
+        <input type="text" name="zpos" placeholder="z-position">
+        <input type="text" name="xvel" placeholder="x-velocity">
+        <input type="text" name="yvel" placeholder="y-velocity">
+        <input type="text" name="zvel" placeholder="z-velocity">
+        <input type="text" name="tf" placeholder="Final Time">
+        <button type="submit">Run</button>
+      `,
+      "relativemotion": `
+        <h3>Inputs – Relative Motion</h3>
+        <input type="text" name="dr" placeholder="Δr (km)">
+        <input type="text" name="dv" placeholder="Δv (km/s)">
+        <input type="text" name="n" placeholder="Mean Motion (rad/s)">
+        <input type="text" name="tf" placeholder="Final Time (s)">
+        <button type="submit">Run</button>
+      `
+    };
+
+    function updateInputs() {
+  const selected = orbitTypeSelect.value;
+  inputsDiv.style.opacity = 0;
+  setTimeout(() => {
+    inputsDiv.innerHTML = inputGroups[selected];
+    inputsDiv.style.opacity = 1;
+
+    // ✅ Attach the Run button handler *after* the new inputs are added
+    const btn = inputsDiv.querySelector("button");
+    if (btn) {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        simulateOrbit();
+      });
+    }
+
+    // Resize Plotly plot after input swap
+    if (window.Plotly && Plotly.Plots && typeof Plotly.Plots.resize === 'function') {
+      Plotly.Plots.resize(document.getElementById('mainPlot'));
+    }
+  }, 200);
+}
+
+
+    orbitTypeSelect.addEventListener("change", updateInputs);
+    updateInputs();
+
+    // Resize on window change
+    window.addEventListener('resize', () => {
+      if (window.Plotly && Plotly.Plots && typeof Plotly.Plots.resize === 'function') {
+        Plotly.Plots.resize(document.getElementById('mainPlot'));
+      }
+    });
+  });
+  </script>
 </body>
 </html>
+

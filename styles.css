@@ -8,8 +8,8 @@
 html, body {
   height: 100%;
   overflow: hidden;
-  background-color: #000; /* Dark background */
-  color: #e0e0e0; /* Light text */
+  background-color: #000;
+  color: #e0e0e0;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -20,12 +20,12 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #111; /* Dark gray header */
+  background-color: #111;
   padding: 0.8rem 1.5rem;
   height: 8vh;
   min-height: 40px;
   flex-shrink: 0;
-  border-bottom: 2px solid #00bcd4; /* Cyan accent line */
+  border-bottom: 2px solid #00bcd4;
 }
 
 header .site-name {
@@ -43,7 +43,7 @@ header nav a {
 }
 
 header nav a:hover {
-  color: #ff9800; /* Warm orange hover */
+  color: #ff9800;
 }
 
 /* GRID LAYOUT */
@@ -55,6 +55,7 @@ header nav a:hover {
   gap: 1%;
   padding: 1%;
   min-height: 0;
+  height: calc(100vh - 16vh); /* header + footer */
 }
 
 /* LEFT COLUMN */
@@ -80,8 +81,9 @@ header nav a:hover {
   margin-top: 1vh;
   padding: 1vh;
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
   border: 1px solid #333;
+  transition: opacity 0.2s ease;
 }
 
 /* CENTER MAIN PLOT */
@@ -98,17 +100,25 @@ header nav a:hover {
 .main-plot {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  text-align: center;
+  flex: 1 1 auto;
   min-height: 0;
 }
 
 #mainPlot {
-  flex: 1;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
   margin-top: 1vh;
   background: #0d0d0d;
   border-radius: 0.8vh;
   border: 1px solid #222;
+}
+
+/* Ensure Plotly internal SVGs honor container sizes */
+.js-plotly-plot, .plot-container, .svg-container {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* RIGHT COLUMN */
@@ -187,22 +197,13 @@ button:hover {
 
 /* RESPONSIVE SCALING */
 @media (max-width: 1200px) {
-  header .site-name {
-    font-size: 1.1rem;
-  }
-  header nav a {
-    font-size: 0.8rem;
-  }
-  .layout {
-    grid-template-columns: 18% 1fr 27%;
-    gap: 0.8%;
-  }
+  header .site-name { font-size: 1.1rem; }
+  header nav a { font-size: 0.8rem; }
+  .layout { grid-template-columns: 18% 1fr 27%; gap: 0.8%; }
 }
 
 @media (max-width: 900px) {
-  .layout {
-    grid-template-columns: 22% 1fr 28%;
-  }
+  .layout { grid-template-columns: 22% 1fr 28%; }
 }
 
 @media (max-width: 700px) {
@@ -211,12 +212,6 @@ button:hover {
     grid-template-rows: 1fr auto;
     overflow-y: auto;
   }
-  .right-column {
-    flex-direction: row;
-    gap: 2%;
-  }
-  .conserved,
-  .errors {
-    flex: 1;
-  }
+  .right-column { flex-direction: row; gap: 2%; }
+  .conserved, .errors { flex: 1; }
 }
