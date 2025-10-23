@@ -205,10 +205,3 @@ function simulateOrbit() {
   else if (currentMode === "relative") simulateRelativeMotion();
 }
 
-// ======================================================
-// ========== EVENT HOOKS ===============================
-// ======================================================
-document.addEventListener("DOMContentLoaded", () => {
-  // Run a default 2-body plot with [7000,0,0,0,7.5,0]
-  simulate2Body([7000, 0, 0], [0, 7.5, 0]);
-});
