@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learning</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class = "learning-page">
+  <header>
+    <div class="site-name">Learning - Introduction</div>
+    <nav>
+      <a href="index.html">Plotting</a>
+      <a href="learning.html">Learning</a>
+      <a href="resources.html">Resources</a>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <div class="table-of-contents">
+      <h2>Table of Contents</h2>
+      <ul>
+        <li><a href="learning.html">Introduction</a></li>
+        <li><a href="two-body.html">Two Body</a></li>
+        <li><a href="cr3bp.html">CR3BP</a></li>
+        <li><a href="relative-motion.html">Relative Motion</a></li>
+        <li><a href="examples.html">Examples</a></li>
+        <li><a href="resources.html">Resources</a></li>
+      </ul>
+    </div>
+
+    <div class = "reading-body">
+      <h1>Introduction</h1>
+      <p>
+        Orbit dynamics are made up of complicated information that help us understand how objects 
+        move while in space. This information is comprised of mathematical equations and scientific theory 
+        that have been developed and study over centuries. The goal of this website is to help provide
+        a basic understanding of some of the fundamental concepts of these equations and theories for anybody 
+        to use.
+      </p>
+      <p>
+        This website currently focuses on how the theory behind three different orbit models: the two-body problem, 
+        the three-body problem, and relative motion. Each of these models help scientists and engineers 
+        understand how an object moves in space depending on the desired conditions. The two-body problem focuses on 
+        how two objects in space interact with each other, such as a planet and a satellite. The three-body problem 
+        adds a third object to the two-body problem, which greatly increases the completexity of the system. Examples 
+        of the three-body problem include a system made of the Earth, Moon, and a satellite. Finally, relative motion 
+        shows how two objects move in relation to each other, such as a satellite constellation for GPS navigation.
+      </p>
+      <p>
+        Each section of this website includes the theory and equations that were used to plot each type of orbit model on the main page. 
+        The resources page includes textbooks and online resources that were utilized in the making of this website. 
+        It is recommend to use these resources to study these topics further if desired.
+      </p>
+      <p>
+        Finally, remember that these topics are studied by scientists for their entire lives so never feel discouraged while 
+        trying to learn these topics. Never feel afraid to reach out for help. Good luck on your learning journey!
+      </p>
+    </div>
+  </main>
+
+  <footer>
+    <p>Made By: Josh Taylor and Zack Fraser</p>
+    <p>Contact Us: orbitplotter@gmail.com</p>
+  </footer>
+
+  <script>
+    // Handle collapsible sections
+    document.querySelectorAll('.toc-toggle').forEach(button => {
+      button.addEventListener('click', () => {
+        const subsection = button.nextElementSibling;
+        const isOpen = subsection.style.display === 'block';
+        subsection.style.display = isOpen ? 'none' : 'block';
+        button.classList.toggle('active', !isOpen);
+      });
+    });
+  </script>
+
+</body>
+</html>
