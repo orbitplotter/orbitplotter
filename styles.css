@@ -1,3 +1,6 @@
+/* --------------------------------------------------
+   GLOBAL RESET
+-------------------------------------------------- */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -13,9 +16,12 @@ html, body {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  scroll-behavior: smooth;
 }
 
-/* HEADER */
+/* --------------------------------------------------
+   HEADER
+-------------------------------------------------- */
 header {
   display: flex;
   justify-content: space-between;
@@ -46,7 +52,9 @@ header nav a:hover {
   color: #ff9800;
 }
 
-/* GRID LAYOUT */
+/* --------------------------------------------------
+   GRID LAYOUT (SIMULATION DEFAULT)
+-------------------------------------------------- */
 .layout {
   flex: 1;
   display: grid;
@@ -58,7 +66,16 @@ header nav a:hover {
   height: calc(100vh - 16vh); /* header + footer */
 }
 
-/* LEFT COLUMN */
+/* --------------------------------------------------
+   LEARNING-PAGE LAYOUT OVERRIDES
+-------------------------------------------------- */
+.learning-page .layout {
+  grid-template-columns: 15% 1fr !important;
+}
+
+/* --------------------------------------------------
+   LEFT COLUMN
+-------------------------------------------------- */
 .left-column {
   display: flex;
   flex-direction: column;
@@ -86,7 +103,9 @@ header nav a:hover {
   transition: opacity 0.2s ease;
 }
 
-/* CENTER MAIN PLOT */
+/* --------------------------------------------------
+   CENTER / MAIN PLOT COLUMN
+-------------------------------------------------- */
 .center {
   background-color: #1a1a1a;
   border-radius: 0.8vh;
@@ -112,16 +131,18 @@ header nav a:hover {
   margin-top: 1vh;
   background: #0d0d0d;
   border-radius: 0.8vh;
-  border: 1px solid #222;
+  border: 1px solid #222;  /* KEEPING FILE 1 BORDER */
 }
 
-/* Ensure Plotly internal SVGs honor container sizes */
+/* Plotly container fixes */
 .js-plotly-plot, .plot-container, .svg-container {
   width: 100% !important;
   height: 100% !important;
 }
 
-/* RIGHT COLUMN */
+/* --------------------------------------------------
+   RIGHT COLUMN (SIMULATION)
+-------------------------------------------------- */
 .right-column {
   display: flex;
   flex-direction: column;
@@ -156,7 +177,9 @@ header nav a:hover {
   border: 1px solid #222;
 }
 
-/* FOOTER */
+/* --------------------------------------------------
+   FOOTER
+-------------------------------------------------- */
 footer {
   background-color: #111;
   text-align: center;
@@ -169,7 +192,9 @@ footer {
   border-top: 2px solid #00bcd4;
 }
 
-/* DROPDOWNS & INPUTS */
+/* --------------------------------------------------
+   INPUTS / BUTTONS
+-------------------------------------------------- */
 select, input, button {
   background-color: #0d0d0d;
   color: #e0e0e0;
@@ -195,15 +220,157 @@ button:hover {
   background-color: #0097a7;
 }
 
-/* RESPONSIVE SCALING */
+/* --------------------------------------------------
+   TABLE OF CONTENTS (Learning Page)
+-------------------------------------------------- */
+.table-of-contents {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 0.8vh;
+  padding: 0.75vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.table-of-contents h2 {
+  color: #e0e0e0;
+  font-size: 1.1rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+}
+
+.table-of-contents ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+
+.table-of-contents li {
+  margin: 0.3rem 0;
+}
+
+.table-of-contents a {
+  display: block;
+  color: #e0e0e0;
+  text-decoration: none;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.table-of-contents a:hover {
+  color: #ff9800;
+}
+
+/* --------------------------------------------------
+   READABLE CONTENT AREA (Learning Page)
+-------------------------------------------------- */
+.reading-body {
+  padding: 0.75vh;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #1a1a1a;
+  border-radius: 1vh;
+  border: 1px solid #333;
+}
+
+.reading-body h1,
+.reading-body h2,
+.reading-body h3 {
+  color: #e0e0e0;
+  text-align: center;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+  line-height: 1.3;
+  font-weight: bold;
+}
+
+.reading-body h1 { font-size: 2rem; }
+.reading-body h2 { font-size: 1.6rem; }
+.reading-body h3 { font-size: 1.3rem; }
+
+.reading-body p {
+  padding: 1rem;
+  color: #e0e0e0;
+  line-height: 1.5;
+}
+
+.reading-body pre,
+.reading-body code {
+  background-color: #0d0d0d;
+  border: 1px solid #333;
+  padding: 0.75rem 1rem;
+  border-radius: 0.8vh;
+  overflow-x: auto;
+  display: block;
+  color: #00e5ff;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+.reading-body img {
+  max-width: 100%;
+  border-radius: 0.8vh;
+  border: 1px solid #333;
+  margin: 1rem 0;
+}
+
+.reading-body a {
+  color: #00bcd4;
+  text-decoration: underline;
+}
+
+.reading-body a:hover {
+  color: #ff9800;
+}
+
+.reading-body ul,
+.reading-body ol {
+  margin: 1rem 0 1rem 2rem;
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------
+   SCROLLBAR STYLING
+-------------------------------------------------- */
+.table-of-contents::-webkit-scrollbar,
+.inputs::-webkit-scrollbar,
+.left-column ul::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-of-contents::-webkit-scrollbar-thumb,
+.inputs::-webkit-scrollbar-thumb,
+.left-column ul::-webkit-scrollbar-thumb {
+  background-color: #333;
+  border-radius: 4px;
+}
+
+.table-of-contents::-webkit-scrollbar-thumb:hover,
+.inputs::-webkit-scrollbar-thumb:hover,
+.left-column ul::-webkit-scrollbar-thumb:hover {
+  background-color: #00bcd4;
+}
+
+/* --------------------------------------------------
+   RESPONSIVE SETTINGS
+-------------------------------------------------- */
 @media (max-width: 1200px) {
   header .site-name { font-size: 1.1rem; }
   header nav a { font-size: 0.8rem; }
   .layout { grid-template-columns: 18% 1fr 27%; gap: 0.8%; }
+  .learning-page .layout { grid-template-columns: 18% 1fr !important; }
 }
 
 @media (max-width: 900px) {
   .layout { grid-template-columns: 22% 1fr 28%; }
+  .learning-page .layout { grid-template-columns: 22% 1fr !important; }
 }
 
 @media (max-width: 700px) {
@@ -214,4 +381,5 @@ button:hover {
   }
   .right-column { flex-direction: row; gap: 2%; }
   .conserved, .errors { flex: 1; }
+  .learning-page .layout { grid-template-columns: 100% !important; }
 }
