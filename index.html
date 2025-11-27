@@ -68,19 +68,31 @@
     const inputsDiv = document.querySelector(".inputs");
 
     const inputGroups = {
-      "2body": `
-        <h3>Inputs – Two Body</h3>
-        <input type="text" name="xpos" placeholder="x-position (km)">
-        <input type="text" name="ypos" placeholder="y-position (km)">
-        <input type="text" name="zpos" placeholder="z-position (km)">
-        <input type="text" name="xvel" placeholder="x-velocity (km/s)">
-        <input type="text" name="yvel" placeholder="y-velocity (km/s)">
-        <input type="text" name="zvel" placeholder="z-velocity (km/s)">
-        <button type="submit">Run</button>
-      `,
+      "2body": {
+        "stateVector": `
+          <h3>Two-Body – State Vector</h3>
+          <input type="text" name="xpos" placeholder="x-position (km)">
+          <input type="text" name="ypos" placeholder="y-position (km)">
+          <input type="text" name="zpos" placeholder="z-position (km)">
+          <input type="text" name="xvel" placeholder="x-velocity (km/s)">
+          <input type="text" name="yvel" placeholder="y-velocity (km/s)">
+          <input type="text" name="zvel" placeholder="z-velocity (km/s)">
+          <button type="submit">Run</button>
+        `,
+        "orbitalElements": `
+          <h3>Two-Body – Orbital Elements</h3>
+          <input type="text" name="a" placeholder="semi-major axis (km)">
+          <input type="text" name="e" placeholder="eccentricity">
+          <input type="text" name="i" placeholder="inclination (deg)">
+          <input type="text" name="RANN" placeholder="RAAN (deg)">
+          <input type="text" name="argp" placeholder="argument of periapsis (deg)">
+          <input type="text" name="tf" placeholder="Final Time (s)">
+          <button type="submit">Run</button>
+        `
+      },
       "cr3bp": `
         <h3>Inputs – CR3BP</h3>
-        <input type="text" name="mu" placeholder="μ (mass ratio)">
+        <input type="text" name="mu3b" placeholder="μ (mass ratio)">
         <input type="text" name="xpos" placeholder="x-position">
         <input type="text" name="ypos" placeholder="y-position">
         <input type="text" name="zpos" placeholder="z-position">
@@ -101,11 +113,40 @@
     };
 
     function updateInputs() {
-      const selected = orbitTypeSelect.value;
+      const selectedOrbit = orbitTypeSelect.value;
       inputsDiv.style.opacity = 0;
       setTimeout(() => {
-        inputsDiv.innerHTML = inputGroups[selected];
-        inputsDiv.style.opacity = 1;
+        if (selectedOrbit === "2body") {
+          // Add radio buttons for state vector vs orbital elements
+          inputsDiv.innerHTML = `
+            <div class="orbit-choice">
+              <label><input type="radio" name="twoBodyInput" value="stateVector" checked> State Vector</label>
+              <label><input type="radio" name="twoBodyInput" value="orbitalElements"> Orbital Elements</label>
+            </div>
+            <div class="orbit-fields"></div>
+          `;
+
+          const fieldsDiv = inputsDiv.querySelector(".orbit-fields");
+          fieldsDiv.innerHTML = inputGroups["2body"]["stateVector"];
+
+          // Radio button listener
+          const radios = inputsDiv.querySelectorAll('input[name="twoBodyInput"]');
+          radios.forEach(radio => {
+            radio.addEventListener("change", (e) => {
+              fieldsDiv.innerHTML = inputGroups["2body"][e.target.value];
+
+              const btn = fieldsDiv.querySelector("button");
+              if (btn) {
+                btn.addEventListener("click", (ev) => {
+                  ev.preventDefault();
+                  simulateOrbit();
+                });
+              }
+            });
+          });
+        } else {
+          inputsDiv.innerHTML = inputGroups[selectedOrbit];
+        }
 
         const btn = inputsDiv.querySelector("button");
         if (btn) {
@@ -114,6 +155,8 @@
             simulateOrbit();
           });
         }
+
+        inputsDiv.style.opacity = 1;
 
         if (window.Plotly?.Plots?.resize) {
           Plotly.Plots.resize(document.getElementById('mainPlot'));
@@ -133,4 +176,3 @@
   </script>
 </body>
 </html>
-
