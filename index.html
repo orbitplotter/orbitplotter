@@ -40,7 +40,6 @@
 
     <div class="right-column">
       <div class="conserved">
-        <h3>Conserved Quantities</h3>
         <div id="conservedPlot"></div>
       </div>
       <div class="errors">
@@ -61,37 +60,27 @@
   <script src="conserved.js"></script>
   <script src="errors.js"></script>
 
-  <!-- ===== Dynamic Input Script ===== -->
+  <!-- ===== Dynamic Input Script (Updated) ===== -->
   <script>
   document.addEventListener("DOMContentLoaded", () => {
     const orbitTypeSelect = document.getElementById("orbitType");
     const inputsDiv = document.querySelector(".inputs");
 
     const inputGroups = {
-      "2body": {
-        "stateVector": `
-          <h3>Two-Body – State Vector</h3>
-          <input type="text" name="xpos" placeholder="x-position (km)">
-          <input type="text" name="ypos" placeholder="y-position (km)">
-          <input type="text" name="zpos" placeholder="z-position (km)">
-          <input type="text" name="xvel" placeholder="x-velocity (km/s)">
-          <input type="text" name="yvel" placeholder="y-velocity (km/s)">
-          <input type="text" name="zvel" placeholder="z-velocity (km/s)">
-          <button type="submit">Run</button>
-        `,
-        "orbitalElements": `
-          <h3>Two-Body – Orbital Elements</h3>
-          <input type="text" name="a" placeholder="semi-major axis (km)">
-          <input type="text" name="e" placeholder="eccentricity">
-          <input type="text" name="i" placeholder="inclination (deg)">
-          <input type="text" name="RANN" placeholder="RAAN (deg)">
-          <input type="text" name="argp" placeholder="argument of periapsis (deg)">
-          <input type="text" name="tf" placeholder="Final Time (s)">
-          <button type="submit">Run</button>
-        `
-      },
+      "2body": `
+        <h3>Inputs:</h3>
+        <input type="text" name="mu" placeholder="μ (km^3/s^2)">
+        <input type="text" name="xpos" placeholder="x-position (km)">
+        <input type="text" name="ypos" placeholder="y-position (km)">
+        <input type="text" name="zpos" placeholder="z-position (km)">
+        <input type="text" name="xvel" placeholder="x-velocity (km/s)">
+        <input type="text" name="yvel" placeholder="y-velocity (km/s)">
+        <input type="text" name="zvel" placeholder="z-velocity (km/s)">
+        <input type="text" name="tf" placeholder="Final Time (s)">
+        <button type="button">Run</button>
+      `,
       "cr3bp": `
-        <h3>Inputs – CR3BP</h3>
+        <h3>Inputs:</h3>
         <input type="text" name="mu3b" placeholder="μ (mass ratio)">
         <input type="text" name="xpos" placeholder="x-position">
         <input type="text" name="ypos" placeholder="y-position">
@@ -100,59 +89,42 @@
         <input type="text" name="yvel" placeholder="y-velocity">
         <input type="text" name="zvel" placeholder="z-velocity">
         <input type="text" name="tf" placeholder="Final Time">
-        <button type="submit">Run</button>
+        <button type="button">Run</button>
       `,
       "relativemotion": `
-        <h3>Inputs – Relative Motion</h3>
-        <input type="text" name="dr" placeholder="Δr (km)">
-        <input type="text" name="dv" placeholder="Δv (km/s)">
-        <input type="text" name="n" placeholder="Mean Motion (rad/s)">
-        <input type="text" name="tf" placeholder="Final Time (s)">
-        <button type="submit">Run</button>
+        <h3>Inputs:</h3>
+        <!-- Chief Orbit Eccentricity Type -->
+    <fieldset style="margin-bottom: 10px;">
+        <legend>Chief Orbit Eccentricity</legend>
+        <label><input type="radio" name="chief_e" value="0.0" checked> 0.0 </label><br>
+        <label><input type="radio" name="chief_e" value="0.2"> 0.2 </label><br>
+        <label><input type="radio" name="chief_e" value="0.4"> 0.4 </label><br>
+        <label><input type="radio" name="chief_e" value="0.6"> 0.6 </label><br>
+        <label><input type="radio" name="chief_e" value="0.8"> 0.8 </label><br>
+    </fieldset>
+        <input type="text" name="da" placeholder="Δ semi-major axis (km)">
+        <input type="text" name="de" placeholder="Δ eccentricity">
+        <input type="text" name="di" placeholder="Δ inclination (deg)">
+        <input type="text" name="dRANN" placeholder="Δ RANN (deg)">
+        <input type="text" name="dargp" placeholder="Δ ω (km/s)">
+        <input type="text" name="dM" placeholder="Δ mean anomaly (km/s)">
+        <input type="text" name="orbits" placeholder="number of orbits">
+        <button type="button">Run</button>
       `
     };
 
     function updateInputs() {
       const selectedOrbit = orbitTypeSelect.value;
+
       inputsDiv.style.opacity = 0;
       setTimeout(() => {
-        if (selectedOrbit === "2body") {
-          // Add radio buttons for state vector vs orbital elements
-          inputsDiv.innerHTML = `
-            <div class="orbit-choice">
-              <label><input type="radio" name="twoBodyInput" value="stateVector" checked> State Vector</label>
-              <label><input type="radio" name="twoBodyInput" value="orbitalElements"> Orbital Elements</label>
-            </div>
-            <div class="orbit-fields"></div>
-          `;
-
-          const fieldsDiv = inputsDiv.querySelector(".orbit-fields");
-          fieldsDiv.innerHTML = inputGroups["2body"]["stateVector"];
-
-          // Radio button listener
-          const radios = inputsDiv.querySelectorAll('input[name="twoBodyInput"]');
-          radios.forEach(radio => {
-            radio.addEventListener("change", (e) => {
-              fieldsDiv.innerHTML = inputGroups["2body"][e.target.value];
-
-              const btn = fieldsDiv.querySelector("button");
-              if (btn) {
-                btn.addEventListener("click", (ev) => {
-                  ev.preventDefault();
-                  simulateOrbit();
-                });
-              }
-            });
-          });
-        } else {
-          inputsDiv.innerHTML = inputGroups[selectedOrbit];
-        }
+        inputsDiv.innerHTML = inputGroups[selectedOrbit];
 
         const btn = inputsDiv.querySelector("button");
         if (btn) {
           btn.addEventListener("click", (e) => {
             e.preventDefault();
-            simulateOrbit();
+            runSimulation();
           });
         }
 
@@ -176,3 +148,4 @@
   </script>
 </body>
 </html>
+
