@@ -1,4 +1,17 @@
 <!DOCTYPE html>
+
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    },
+    svg: {
+      fontCache: 'global'
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -45,12 +58,144 @@
         When analyzing satellites while in the relative motion frame, it is important to understand where the frame is located. There are several names for the relative motion frame, with the two of the most common being the RIC, RSW, LVLH frames. RIC stands for Radial, In-track, and Cross-track. RIC refers to the different directions that a spacecraft is pointing while in orbit. The radial direction comes from drawing a line from the center of the orbit to the spacecraft and continues outward. The in-track direction comes from the forward direction of the spacecraft. The cross-track direction is created from the cross product of the radial and in-track directions. RSW is the same as RIC but uses SW in place of IC for calculation purposes. LVLH stands for Local Vertical and Local Horizontal. It shows the same directions as the RIC setup but calls the radial direction as local vertical and the in-track direction as local horizontal. The following figure shows the chief satellite frame with the RSW naming scheme.
       </p>
       <figure>
-        <img src="RSW_frame.png" alt="RSW Frame">
-        <figcaption><b>Fig. 1</b> The RSW Frame for Relative Motion. Image Accredited to Kim, Eunhyouek & Han, Seungyeop & Sayegh, Amer. (2019). Sensitivity of the Gravity Model and Orbital Frame for On-board Real-Time Orbit Determination: Operational Results of GPS-12 GPS Receiver. Remote Sensing. 11. 1542. 10.3390/rs11131542.</figcaption>
+        <img src="RSW_frame.png" alt = "RSW Frame">
+        <figcaption><b>Fig. 1</b> The RSW frame for relative motion. Image Accredited to Kim, Eunhyouek & Han, Seungyeop & Sayegh, Amer. (2019). Sensitivity of the Gravity Model and Orbital Frame for On-board Real-Time Orbit Determination: Operational Results of GPS-12 GPS Receiver. Remote Sensing. 11. 1542. 10.3390/rs11131542.</figcaption>
       </figure>
       <p>
-        Within the RIC frame, the chief satellite is located at the coordinates (0, 0, 0).
+        Within the RIC frame, the chief satellite is located at the coordinates [0, 0, 0]. The chief satellite does not move since the frame is positioned on the satellite. The interceptor satellite’s position is stated relative to the chief satellite in units of kilometers. If the interceptor satellite is 1 km ahead of the chief satellite in the in-track direction, then its position is [0, 1, 0] km. If the interceptor satellite is 2 km above the chief satellite in the radial direction, then its position is [2, 0, 0].
       </p>
+      <h2>The State Transition Matrix</h2>
+      <h3>Information from Vallado's <i>Fundamentals of Astrodynamics and Applications</i></h3>
+      <p>
+        The State Transition Matrix (STM) is a matrix that shows how the state of a system changes over time. In relation to satellites, this matrix allows a user to find the state of a satellite after a set period. In order to use the STM, an initial condition is needed. The initial condition is usually the starting position of the satellite at a time of zero. The STM is derived through a series of equations, all of which can be found in Vallado’s <i>Fundamentals of Astrodynamics and Applications</i>.
+      </p>
+      <p>
+        Overall, the STM is a 6x6 matrix that is split into four 3x3 matrices. Each submatrix refers to how the initial state affects the output of the STM. The top left section shows how the initial position affects the final position while the top right section shows how the initial velocity affects the final position. For the bottom left section, it shows how the initial position changes the final velocity while the bottom right section shows how the initial velocity changes the final velocity. These sections are identified by their superscripts and subscripts. The superscript states which output is being calculated while the subscript shows which input is being taken for that section.
+      </p>
+      $$\Phi_{\mathrm{STM}} = \begin{bmatrix} \Phi_{r}^{r} & \Phi_{v}^{r} \\ \Phi_{r}^{v} & \Phi_{v}^{v} \end{bmatrix}$$
+      <p>
+        After deriving the proper equations, the full STM is shown. Note that “s” stands for sin⁡(nt) while “c” stands for cos⁡(nt). The n represents the mean motion of the satellite while t is the time since the initial condition.
+      </p>
+      $$
+      \Phi_{\mathrm{STM}} = 
+      \begin{pmatrix}
+      4 - 3c & 0 & 0 & \dfrac{s}{n} & \dfrac{2(1-c)}{n} & 0 \\
+      6(s - n t) & 1 & 0 & -\dfrac{2(1-c)}{n} & \dfrac{4s - 3n t}{n} & 0 \\
+      0 & 0 & c & 0 & 0 & \dfrac{s}{n} \\
+      3n s & 0 & 0 & c & 2s & 0 \\
+      6n(c-1) & 0 & 0 & -2s & 4c - 3 & 0 \\
+      0 & 0 & -n s & 0 & 0 & c
+      \end{pmatrix}
+      $$
+      <p>
+        When using the STM, it is important to note that the size of the matrix can be adjusted according to the dimension of the calculation. With a 6x6 matrix, the cross-track direction is included in the calculation. This 3<sup>rd</sup> axis provides a slight oscillation when analyzed. If oscillation is not the focus of the study, then a user can simply remove the 3<sup>rd</sup> and 6<sup>th</sup> rows and columns. This ultimately provides a 4x4 matrix in the radial and in-track directions, ignoring any oscillation provided by the cross-track analysis. This may be required in some cases for simplicity, teaching, or a quick orbit design.
+      </p>
+      <h2>The Hill Clohessy-Wiltshire Equation</h2>
+      <h3>Information from Vallado's <i>Fundamentals of Astrodynamics and Applications</i></h3>
+      <p>
+        The Hill Clohessy-Wiltshire (HCW) equation is an equation that utilizes the STM to find the final position of an interceptor satellite after being given an initial position.  The HCW equation is also named as the Hill or Clohessy-Wiltshire (CW) equation. The HCW equation simply multiplies the STM against the initial conditions of the interceptor’s relative state vector. 
+      </p>
+      $$
+      \begin{pmatrix}
+      x \\ y \\ z \\ \dot{x} \\ \dot{y} \\ \dot{z}
+      \end{pmatrix}
+      =
+      \Phi_{\mathrm{STM}}
+      * \begin{pmatrix}
+      x_{0} \\ y_{0} \\ z_{0} \\ \dot{x}_{0} \\ \dot{y}_{0} \\ \dot{z}_{0}
+      \end{pmatrix}
+      $$
+      <p>
+        One condition of the HCW equation is that it must be used in small intervals or the error becomes too great to use accurately. Thus, it is beneficial to use a solver within the user’s code. For Python, two recommended solvers are Scipy’s solve_ivp (found in scipy.integrate.solve_ivp) or Diffrax. Tutorials for these solvers can be found on several online resources. These solvers use the initial condition to find the next step. The next step is then used as the following computation’s initial condition. This cycle continues until the specified time is completed. These solvers also have specified error conditions if the user needs a specific error tolerance.
+      </p>
+      <p>
+        After each step’s position is found, they can be plotted to show how the interceptor satellite moves relative to the chief satellite while in orbit. Usually, the interceptor satellite creates an elliptical pattern around the chief satellite, but many different shapes can be created from the interceptor’s motion. When looking at the relative motion of the interceptor satellite, it is important to note that it must never cross the origin point. As the origin point represents the chief satellite, if the interceptor satellite crosses that point then a collision between the two satellites is encountered. 
+      </p>
+      <p>
+        When the HCW equation is propagated, certain positions provide a natural trajectory to the interceptor satellite. If the interceptor satellite is in a larger orbit than the chief satellite, the interceptor satellite will look like it is falling behind above the chief satellite. If the interceptor satellite is in a smaller orbit, then it will look like it is racing ahead of the chief satellite over time. These leading or lagging motions of the interceptor satellite are generally called the Drifting Offsets. If the interceptor satellite is on the same orbit as the chief satellite but further ahead or behind, then two motions can happen. If the interceptor satellite has no motion relative to the chief satellite, then the interceptor does not move and is called an In-Track Perch. If the interceptor satellite has motion relative to the chief satellite, then the interceptor satellite usually makes periodic motion. The periodic motion can range from an elliptical orbit (such as a safety ellipse) to a swirl. The following figure physically shows how an interceptor satellite can move in relation to the chief satellite.
+      </p>
+      <figure>
+        <img src="Interceptor_Trajectories.png" alt = "Interceptor Trajectories">
+        <figcaption><b>Fig. 2</b> The possible trajectories for an interceptor satellite.</figcaption>
+      </figure>
+      <h2>Transfer with the HCW Equation</h2>
+      <h3>Information from Vallado's <i>Fundamentals of Astrodynamics and Applications.</i></h3>
+      <p>
+        Another benefit of the HCW equation is that the transfer velocities of the interceptor satellite can be found with only the initial and final state vectors. By rearranging the HCW equation, the necessary velocities to complete the transfer are found. The following equations show the two required burns to achieve the final state from the initial state. The change in velocity from the initial state is generally called the positive transfer velocity while the change in velocity for the final state is called the negative transfer velocity.
+      </p>
+      $$
+      \Delta v_{+} = (\Phi_{v}^{r})^{-1} * (r_{f} - \Phi_{r}^{r} * r_{0}) - v_{0}
+      $$
+      $$
+      \Delta v_{-} = v_{f} - (\Phi_{r}^{v} * r_{0} + \Phi_{v}^{v} * (v_{0} + \Delta v_{+}))
+      $$
+      <p>
+      When the transfer velocities are found, they can be added to each position respectively to find the trajectory that the satellite takes. Note that the transfer velocity is dependent on the mean motion and time for the interceptor satellite, thus there are certain times that prove impossible for a transfer orbit. The following figures show an example of how the transfer becomes impossible during certain transfer times. The interceptor satellite was set to go from 1 km in-track to -1 km in-track with zero relative velocity. The mean motion was set to a value of one which makes the period equal to 2π or about 6.28 seconds.
+    </p>
+    <figure>
+      <img src="DeltaV-Pos.png" alt = "Positive Transfer Velocities">
+      <figcaption><b>Fig. 3</b> The positive transfer velocities coming from the intial state.</figcaption>
+    </figure>
+    <figure>
+      <img src="DeltaV-Neg.png" alt = "Negative Transfer Velocities">
+      <figcaption><b>Fig. 4</b> The negative transfer velocities leading into the final state.</figcaption>
+    </figure>
+    <figure>
+      <img src="Total-DeltaV.png" alt = "Total Transfer Velocities">
+      <figcaption><b>Fig. 5</b> The total necessary transfer velocity required for this spacecraft.</figcaption>
+    </figure>
+    <p>
+      When transferring between the two states, it is recommended to transfer at the lowest total change in velocity to reduce the cost of a satellite. It should be observed that the minimum times occur around when a full period happens (at about 6.28 second intervals for this example).
+    </p>
+    <h2>Differential Orbit Element Propagation</h2>
+    <h3>Information from Vallado's <i>Fundamentals of Astrodynamics and Applications.</i></h3>
+    <p>
+      Another way to calculate the relative motion of an interceptor satellite is through differential orbital elements (DOEs). The differential orbital elements are simply the differences between the interceptor satellite orbital elements and the chief satellite orbital elements. By using the differential orbital elements, a user can use the two-body propagator (found in the Two-Body page) to find how the interceptor satellite interacts with the chief satellite.
+    </p>
+    <p>
+      The reason that the DOE propagator is considered against HCW is due to accuracy and time steps. The HCW equation is based on linearized equations, thus its accuracy lowers as time steps are increased or when large jumps in motion occur. The HCW equation also uses a state vector, which is susceptible to quick oscillations. These oscillations can cause an inaccurate plotting of the satellite over time. Finally, the HCW equation assumes a near-circular chief satellite orbit and that there are no J2 perturbations from the Earth. Thus, the HCW equation is best used for design and estimation of early mission proposals.
+    </p>
+    <p>
+      Unlike the HCW equation, the Two-Body propagator uses a numerical solution to solve the interceptor satellite’s motion. By using the DOEs, the problem of fast oscillations is replaced by slow, long oscillations. These oscillations are only caused by forces such as the Earth’s J2 perturbations. Since J2 perturbations commonly use orbital elements to show how a satellite drifts over time, it is easy to implement into the DOE propagation.
+    </p>
+    <p>
+      Another reason to propagate through DOEs is that the HCW equation drifts slightly over time. This is due to the linearized nature of the HCW equation. Since a linearized equation takes small linear steps, the numerical error eventually stacks enough to drift the orbit of the satellite. The Two-Body propagator does not experience this problem as it accounts for such drifts. Making an example using a Low-Earth Orbit (LEO), the following figure shows how the HCW propagated orbit drifts away from the true two-body propagated orbit.
+    </p>
+    <figure>
+      <img src="HCW_Drift.png" alt = "HCW Drift from the True Orbit">
+      <figcaption><b>Fig. 6</b> The drift that occurs from using the HCW equation measured against the numerical true orbit.</figcaption>
+    </figure>
+    <p>
+      Due to the previous use of the two-body propagator, the DOE method was chosen to show the relative motion on the Plotting page of this website. To use the relative motion, select the Relative Motion option under the Type of Orbit section.
+    </p>
+    <h2>The Invariant DOE Propagator</h2>
+    <p>
+      While the DOE propagator is accurate and useful, there is another method to eliminate the artificial oscillations that come with the orbital elements. This comes through the invariant DOE (IDOE) propagator. The IDOE method first uses common orbital elements to compute the Modified Equinoctial Elements (MEEs). These elements are created from the following equations and result as $p$, $f$, $g$, $h$, $k$, and $L$.
+    </p>
+    $$
+    p = a(1 - e^2) \\
+    f = e\cos(\omega + \Omega) \\
+    g = e\sin(\omega + \Omega) \\
+    h = \tan\left(\frac{i}{2}\right)\cos\Omega \\
+    k = \tan\left(\frac{i}{2}\right)\sin\Omega \\
+    L = \Omega + \omega + M
+    $$
+    <p>
+      From the MEEs, the change (or differential) of each element is found. This ultimately provides the IDOEs. Note that the subscript "i" refers to the interceptor satellite while the subscript "c" refers to the chief satellite.
+    </p>
+    $$
+    \begin{aligned}
+    \Delta p &= p_i - p_c \\
+    \Delta f &= f_i - f_c \\
+    \Delta g &= g_i - g_c \\
+    \Delta h &= h_i - h_c \\
+    \Delta k &= k_i - k_c \\
+    \Delta L &= L_i - L_c
+    \end{aligned}
+    $$
+    <p>
+      These elements are useful for using in a propagator as each MEE (except for $L$) is nearly constant during flight when not perturbed by J2 dynamics. Since these elements show a constant behavior, their changes are also constant. For $L$, its result is a linear equation. When taking the change of L ($\Delta L$), it shows that there is a linearly growing motion due to the mean motion. Thus, due to the simplicity of each IDOE value, they can easily be measured and analyzed for accuracy and repetition. 
+    </p>
     </div>
   </main>
 
@@ -62,6 +207,7 @@
 </body>
 
 </html>
+
 
 
 
