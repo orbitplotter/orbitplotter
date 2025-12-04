@@ -67,6 +67,9 @@
       $$
         v_{i+1} = v_i + a_i\Delta t
       $$
+      $$
+        \Delta t = t_{i+1} - t_i
+      $$
       <p>
         Due to the numerical nature of these equations of motion, they are considered a precise answer as long as the steps are small enough. These steps are achieved by looping through many small steps throughout the desired period. There are several programs that can create a loop until the final time is reached. These loops are known as numerical solvers. These solvers are liked within the scientific community as they allow a user to determine their precision over the course of the running code. For Python, the package Scypi includes a solver called solve_ivp (found in scypi.integrate.solve_ivp) that allows for such repetition. The Plotting page of this website uses a similar package and process to display the two-body orbit. 
       </p>
@@ -80,5 +83,6 @@
 
 </body>
 </html>
+
 
 
