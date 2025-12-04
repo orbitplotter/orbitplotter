@@ -124,10 +124,10 @@
         Another benefit of the HCW equation is that the transfer velocities of the interceptor satellite can be found with only the initial and final state vectors. By rearranging the HCW equation, the necessary velocities to complete the transfer are found. The following equations show the two required burns to achieve the final state from the initial state. The change in velocity from the initial state is generally called the positive transfer velocity while the change in velocity for the final state is called the negative transfer velocity.
       </p>
       $$
-      \begin(aligned)
+      \begin{aligned}
       \Delta v_{+} = (\Phi_{v}^{r})^{-1} * (r_{f} - \Phi_{r}^{r} * r_{0}) - v_{0} \\
       \Delta v_{-} = v_{f} - (\Phi_{r}^{v} * r_{0} + \Phi_{v}^{v} * (v_{0} + \Delta v_{+}))
-      \end(aligned)
+      \end{aligned}
       $$
       <p>
       When the transfer velocities are found, they can be added to each position respectively to find the trajectory that the satellite takes. Note that the transfer velocity is dependent on the mean motion and time for the interceptor satellite, thus there are certain times that prove impossible for a transfer orbit. The following figures show an example of how the transfer becomes impossible during certain transfer times. The interceptor satellite was set to go from 1 km in-track to -1 km in-track with zero relative velocity. The mean motion was set to a value of one which makes the period equal to 2π or about 6.28 seconds.
@@ -173,14 +173,14 @@
       While the DOE propagator is accurate and useful, there is another method to eliminate the artificial oscillations that come with the orbital elements. This comes through the invariant DOE (IDOE) propagator. The IDOE method first uses common orbital elements to compute the Modified Equinoctial Elements (MEEs). These elements are created from the following equations and result as $p$, $f$, $g$, $h$, $k$, and $L$.
     </p>
     $$
-    \begin(aligned)
+    \begin{aligned}
     p = a(1 - e^2) \\
     f = e\cos(\omega + \Omega) \\
     g = e\sin(\omega + \Omega) \\
     h = \tan\left(\frac{i}{2}\right)\cos\Omega \\
     k = \tan\left(\frac{i}{2}\right)\sin\Omega \\
     L = \Omega + \omega + M
-    \end(aligned)
+    \end{aligned}
     $$
     <p>
       From the MEEs, the change (or differential) of each element is found. This ultimately provides the IDOEs. Note that the subscript "i" refers to the interceptor satellite while the subscript "c" refers to the chief satellite.
@@ -209,6 +209,7 @@
 </body>
 
 </html>
+
 
 
 
