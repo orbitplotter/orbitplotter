@@ -56,19 +56,17 @@
         To visually show how an orbit of a spacecraft develops over time, it is necessary to propagate it. A propagation is a mathematical process that shows how something develops over time; for example, how a spacecraft moves in space dependent on the objects surrounding it. The most common method to propagate a two-body orbit is through the equations of motion. The equations of motion are developed from the principles of acceleration found in Curtis’s <i>Orbital Mechanics for Engineering Students</i>. The following equation is the basis for two-body orbit propagation.
       </p>
       $$
-        a_{i+1} = -\frac{\mu}{r^3}r_i
+      a_{i+1} = -\frac{\mu}{r^3}r_i
       $$
       <p>
         The propagation of the orbit comes from taking small steps and adding the previous state to the current state. Since velocity is the change of position and acceleration is the change of velocity, then these can help show how the position changes over time. The following equations show how each future step is influenced by its previous.
       </p>
       $$
-        r_{i+1} = r_i + v_i\Delta t
-      $$
-      $$
-        v_{i+1} = v_i + a_i\Delta t
-      $$
-      $$
-        \Delta t = t_{i+1} - t_i
+      \begin{aligned}
+      r_{i+1} &= r_i + v_i\Delta t \\
+      v_{i+1} &= v_i + a_i\Delta t \\
+      \Delta t &= t_{i+1} - t_i
+      \end{aligned}
       $$
       <p>
         Due to the numerical nature of these equations of motion, they are considered a precise answer as long as the steps are small enough. These steps are achieved by looping through many small steps throughout the desired period. There are several programs that can create a loop until the final time is reached. These loops are known as numerical solvers. These solvers are liked within the scientific community as they allow a user to determine their precision over the course of the running code. For Python, the package Scypi includes a solver called solve_ivp (found in scypi.integrate.solve_ivp) that allows for such repetition. The Plotting page of this website uses a similar package and process to display the two-body orbit. 
@@ -83,6 +81,7 @@
 
 </body>
 </html>
+
 
 
 
