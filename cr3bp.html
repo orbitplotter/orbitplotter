@@ -2,6 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+
+  <script>
+  window.MathJax = {
+    loader: {load: ['input/tex', 'output/svg']},
+    tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]},
+    svg: {
+      fontCache: 'local',
+      scale: 1,
+    }
+  };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Three-Body</title>
   <link rel="stylesheet" href="styles.css" />
@@ -31,6 +44,42 @@
 
     <div class = "reading-body">
       <h1>The Three-Body Problem</h1>
+      <p>
+        The three-body problem is widely different from two-body dynamics as it is impossible to solve. This is because there is no general solution for three-body motion. This is due to the high sensitivity to initial conditions and chaotic nature of three-bodies. Thus, assumptions are made so that the three-body problem can be solved. One common set of assumptions is used to create the Circular Restricted 3-Body Problem (CR3BP). This website currently only focuses on the CR3BP for the three-body problem.
+      </p>
+      <p>
+        There are many topics within the subject of three-body motion. This page will be in constant development until it has completed every topic. For now, the propagation topics are prioritized.
+      </p>
+      <h2>CR3BP Propagation</h2>
+      <h3>Information from Vallado's <i>Fundamentals of Astrodynamics and Applications</i></h3>
+      <p>
+        To propagate the CR3BP, it is necessary to find the velocity and acceleration of the initial state so that the next state can be found. As the velocity is already given with the initial state, the acceleration will need to be calculated. Using the equations of motion for three-body motion in a nondimensional frame, the following equations emerge. These equations of motion are significantly more complicated than their two-body counterpart. Note that these equations are from a 3D perspective.
+      </p>
+      $$
+      \begin{aligned}
+      r_1 &= \sqrt{(x+\mu)^2 + y^2 + z^2} \\
+      r_2 &= \sqrt{(x-1+\mu)^2 + y^2 + z^2} \\
+      \frac{\partial U}{\partial x} &= -\frac{(1-\mu)(x+\mu)}{r_1^{3}} - \frac{\mu(x-1+\mu)}{r_2^{3}} \\
+      \frac{\partial U}{\partial y} &= -\frac{(1-\mu)y}{r_1^{3}} - \frac{\mu y}{r_2^{3}} \\
+      \frac{\partial U}{\partial z} &= -\frac{(1-\mu)z}{r_1^{3}} - \frac{\mu z}{r_2^{3}} \\
+      a_x &= x + 2v_y + \frac{\partial U}{\partial x} \\
+      a_y &= y - 2v_x + \frac{\partial U}{\partial y} \\
+      a_z &= \frac{\partial U}{\partial z} \\
+      a_i &= [a_x, a_y, a_z]
+      \end{aligned}
+      $$
+      <p>
+        From here, the propagation process is very similar to the two-body problem. Velocity multiplied by the time step is added to the initial position state to find the final position state. Following, acceleration multiplied by the time step is added to the initial velocity state to find the final velocity state. This process is looped until the final desired time has been calculated.
+      </p>
+      $$
+      \begin{aligned}
+      r_{i+1} &= r_i + v_i\Delta t
+      v_{i+1} &= v_i + a_i\Delta t
+      \end{aligned}
+      $$
+      <p>
+        Through the propagation, nearly any three-body orbit of a spacecraft can be found. This is assuming that the celestial bodies are orbiting in a perfectly circular pattern, due to the CR3BP. Other assumptions, such as the Elliptical Restricted 3-Body Problem (ER3BP) could allow for higher accuracy with their own set of limitations. For the Plotting page of this website, the CR3BP is used for its simplicity and accuracy.
+      </p>
     </div>
   </main>
 
@@ -42,3 +91,4 @@
 </body>
 
 </html>
+
