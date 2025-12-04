@@ -64,10 +64,13 @@
       <p>
         Within the RIC frame, the chief satellite is located at the coordinates [0, 0, 0]. The chief satellite does not move since the frame is positioned on the satellite. The interceptor satellite’s position is stated relative to the chief satellite in units of kilometers. If the interceptor satellite is 1 km ahead of the chief satellite in the in-track direction, then its position is [0, 1, 0] km. If the interceptor satellite is 2 km above the chief satellite in the radial direction, then its position is [2, 0, 0].
       </p>
-      <h2>The State Transition Matrix</h2>
+      <h2>The Hill Clohessy-Wiltshire Equation</h2>
       <h3>Information from Vallado's <i>Fundamentals of Astrodynamics and Applications</i></h3>
       <p>
-        The State Transition Matrix (STM) is a matrix that shows how the state of a system changes over time. In relation to satellites, this matrix allows a user to find the state of a satellite after a set period. In order to use the STM, an initial condition is needed. The initial condition is usually the starting position of the satellite at a time of zero. The STM is derived through a series of equations, all of which can be found in Vallado’s <i>Fundamentals of Astrodynamics and Applications</i>.
+        The Hill Clohessy-Wiltshire (HCW) equation is an equation that utilizes a State Transition Matrix (STM) to find the final position of an interceptor satellite after being given an initial position.  The HCW equation is also named as the Hill or Clohessy-Wiltshire (CW) equation. The HCW equation simply multiplies the STM against the initial conditions of the interceptor’s relative state vector. 
+      </p>
+      <p>
+        The STM is a matrix that shows how the state of a system changes over time. In relation to satellites, this matrix allows a user to find the state of a satellite after a set period. In order to use the STM, an initial condition is needed. The initial condition is usually the starting position of the satellite at a time of zero. The STM is derived through a series of equations, all of which can be found in Vallado’s <i>Fundamentals of Astrodynamics and Applications</i>.
       </p>
       <p>
         Overall, the STM is a 6x6 matrix that is split into four 3x3 matrices. Each submatrix refers to how the initial state affects the output of the STM. The top left section shows how the initial position affects the final position while the top right section shows how the initial velocity affects the final position. For the bottom left section, it shows how the initial position changes the final velocity while the bottom right section shows how the initial velocity changes the final velocity. These sections are identified by their superscripts and subscripts. The superscript states which output is being calculated while the subscript shows which input is being taken for that section.
@@ -88,12 +91,7 @@
       \end{pmatrix}
       $$
       <p>
-        When using the STM, it is important to note that the size of the matrix can be adjusted according to the dimension of the calculation. With a 6x6 matrix, the cross-track direction is included in the calculation. This 3<sup>rd</sup> axis provides a slight oscillation when analyzed. If oscillation is not the focus of the study, then a user can simply remove the 3<sup>rd</sup> and 6<sup>th</sup> rows and columns. This ultimately provides a 4x4 matrix in the radial and in-track directions, ignoring any oscillation provided by the cross-track analysis. This may be required in some cases for simplicity, teaching, or a quick orbit design.
-      </p>
-      <h2>The Hill Clohessy-Wiltshire Equation</h2>
-      <h3>Information from Vallado's <i>Fundamentals of Astrodynamics and Applications</i></h3>
-      <p>
-        The Hill Clohessy-Wiltshire (HCW) equation is an equation that utilizes the STM to find the final position of an interceptor satellite after being given an initial position.  The HCW equation is also named as the Hill or Clohessy-Wiltshire (CW) equation. The HCW equation simply multiplies the STM against the initial conditions of the interceptor’s relative state vector. 
+        When using the STM, it is important to note that the size of the matrix can be adjusted according to the dimension of the calculation. With a 6x6 matrix, the cross-track direction is included in the calculation. This 3<sup>rd</sup> axis provides a slight oscillation when analyzed. If oscillation is not the focus of the study, then a user can simply remove the 3<sup>rd</sup> and 6<sup>th</sup> rows and columns. This ultimately provides a 4x4 matrix in the radial and in-track directions, ignoring any oscillation provided by the cross-track analysis. This may be required in some cases for simplicity, teaching, or a quick orbit design. The following equation shows how the STM is directly integrated into the HCW equation.
       </p>
       $$
       \begin{pmatrix}
@@ -209,6 +207,7 @@
 </body>
 
 </html>
+
 
 
 
