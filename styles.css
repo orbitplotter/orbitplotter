@@ -1,396 +1,323 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
+:root{
+  --bg: #0A0C10;
+  --surface: #12151C;
+  --surface-2: #191D27;
+  --border: #262B37;
+  --text: #E9ECF3;
+  --text-muted: #8891A3;
+  --accent: #5C8DF6;
+  --accent-soft: #7FA6FF;
+  --pastel: #A99CE0;
+  --shadow: 0 8px 28px rgba(0,0,0,0.5);
+  --radius: 14px;
+}
+*{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html, body{ height:100%; }
+body{
+  background:var(--bg); color:var(--text);
+  font-family:'Inter',sans-serif;
+  min-height:100vh; display:flex; flex-direction:column;
+}
+button, a{ outline:none; }
+button::-moz-focus-inner{ border:0; }
+a{ color:inherit; text-decoration:none; }
+img{ max-width:100%; height:auto; display:block; }
+.mono{ font-family:'IBM Plex Mono',monospace; }
+
+/* ---------------- HEADER / NAV ---------------- */
+header{
+  position:sticky; top:0; z-index:50;
+  background:rgba(10,12,16,0.9); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+header .header-inner{
+  max-width:1400px; margin:0 auto;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 28px; gap:20px;
+}
+.site-name{
+  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.1rem;
+  letter-spacing:-0.01em; display:flex; align-items:center; white-space:nowrap;
+}
+header nav{
+  display:flex; align-items:center; gap:4px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:999px; padding:4px;
+}
+header nav a{
+  font-family:'Inter',sans-serif; font-weight:500; font-size:.86rem;
+  color:var(--text-muted); padding:8px 16px; border-radius:999px;
+  transition:color .2s ease, background .2s ease; white-space:nowrap;
+}
+header nav a:hover{ color:var(--text); }
+header nav a.active{ background:var(--accent); color:#fff; }
+
+/* ---------------- MAIN LAYOUT ---------------- */
+main{ flex:1; min-height:0; display:flex; flex-direction:column; }
+.layout{
+  flex:1; min-height:0;
+  max-width:1400px; width:100%; margin:0 auto;
+  display:grid;
+  grid-template-columns: 260px 1fr 300px;
+  grid-template-rows: minmax(0, 1fr);
+  gap:16px; padding:16px 20px;
+}
+.learning-page .layout{ grid-template-columns: 260px 1fr; }
+
+.panel-box{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); padding:16px;
 }
 
-html, body {
-  height: 100%;
-  overflow: hidden;
-  background-color: #000;
-  color: #e0e0e0;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  scroll-behavior: smooth;
+/* Section headers used inside every panel (Type of Orbit, Inputs via the
+   dynamic template's own <h3>, Conserved Quantity Error, Examples). */
+.controls h3, .diagnostics h3{
+  font-family:'IBM Plex Mono',monospace; font-size:.72rem; text-transform:uppercase;
+  letter-spacing:.08em; color:var(--pastel); margin-bottom:10px; display:flex; align-items:center; gap:8px;
+}
+.controls h3::before, .diagnostics h3::before{
+  content:""; width:16px; height:1px; background:var(--pastel);
 }
 
-/* HEADER */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #111;
-  padding: 0.8rem 1.5rem;
-  height: 8vh;
-  min-height: 40px;
-  flex-shrink: 0;
-  border-bottom: 2px solid #00bcd4;
-}
+/* LEFT: Type of Orbit + Inputs + Run, as one continuous panel so there's
+   no dead space between a short header and the fields below it. */
+.controls{ display:flex; flex-direction:column; gap:12px; min-height:0; }
+.type-section{ flex-shrink:0; }
+.type-section select{ width:100%; }
 
-header .site-name {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: #00bcd4;
+.inputs-fields{
+  flex:1; overflow-y:auto; min-height:0;
+  display:flex; flex-direction:column; gap:10px;
+  transition:opacity .2s ease;
 }
+/* Same fix as .example-card below: without this, a long enough field list
+   (e.g. Relative Motion's) could get squeezed shorter than its content by
+   the flex-shrink algorithm before overflow-y:auto ever gets a say. */
+.inputs-fields > *{ flex-shrink:0; }
+.inputs-fields input, .inputs-fields select{ width:100%; }
+.inputs-fields label{ font-size:.82rem; color:var(--text-muted); }
+.inputs-fields fieldset{
+  border:1px solid var(--border); border-radius:10px; padding:10px 12px 12px;
+  margin-bottom:2px;
+}
+.inputs-fields legend{
+  font-family:'IBM Plex Mono',monospace; font-size:.7rem; text-transform:uppercase;
+  letter-spacing:.06em; color:var(--text-muted); padding:0 6px;
+}
+.inputs-fields .radio-row{ display:flex; align-items:center; gap:8px; padding:8px 2px; font-size:.86rem; min-height:36px; }
+.inputs-fields .radio-row input{ width:18px; height:18px; flex-shrink:0; }
+.inputs-fields .field-label{
+  font-family:'IBM Plex Mono',monospace; font-size:.68rem; text-transform:uppercase;
+  letter-spacing:.05em; color:var(--text-muted);
+}
+/* Snug a label to the field right after it via a small positive margin on
+   the field, rather than a negative margin on the label - negative margins
+   immediately before a fieldset's closing edge can visually overlap its
+   border, which is what was clipping the last field in a fieldset. */
+.inputs-fields .field-label + input, .inputs-fields .field-label + select{ margin-top:4px; }
+.inputs-fields fieldset .field-label{ margin-top:8px; }
 
-header nav a {
-  color: #e0e0e0;
-  margin-left: 1rem;
-  text-decoration: none;
-  font-size: 0.95rem;
-  transition: color 0.2s;
-}
-
-header nav a:hover {
-  color: #ff9800;
-}
-
-/* GRID LAYOUT */
-.layout {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 15% 1fr 25%;
-  grid-template-rows: 1fr;
-  gap: 1%;
-  padding: 1%;
-  min-height: 0;
-  height: calc(100vh - 16vh); /* header + footer */
-}
-
-.learning-page .layout {
-  grid-template-columns: 15% 1fr !important;  /* Only 2 columns */
-}
-
-/* LEFT COLUMN */
-.left-column {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.type {
-  background-color: #1a1a1a;
-  text-align: center;
-  padding: 1vh;
-  border-radius: 0.8vh;
-  height: 12%;
-  min-height: 40px;
-  border: 1px solid #333;
-}
-
-.inputs {
-  background-color: #1a1a1a;
-  border-radius: 0.8vh;
-  margin-top: 1vh;
-  padding: 1vh;
-  flex: 1;
-  overflow-y: auto;
-  border: 1px solid #333;
-  transition: opacity 0.2s ease;
-}
+.run-btn{ padding:9px 20px; touch-action:manipulation; width:100%; flex-shrink:0; }
 
 /* CENTER MAIN PLOT */
-.center {
-  background-color: #1a1a1a;
-  border-radius: 0.8vh;
-  padding: 1vh;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  border: 1px solid #333;
+.center{ display:flex; flex-direction:column; min-height:0; }
+.main-plot{ flex:1; min-height:0; display:flex; flex-direction:column; }
+#mainPlot{
+  flex:1; width:100%; min-height:0;
+  background:var(--surface-2); border-radius:10px; border:1px solid var(--border);
+  touch-action:none; /* let Plotly's own touch rotate/pan/pinch handle gestures on the canvas */
+}
+#mainPlot .js-plotly-plot, #mainPlot .plot-container, #mainPlot .svg-container{ width:100% !important; height:100% !important; }
+
+/* RIGHT: Conserved Quantity Error and Examples are two independent boxes
+   (not one merged card) - a flex column wrapper just spaces them apart,
+   with the conserved box taking only the height it needs and examples
+   filling the rest. */
+.diagnostics{ display:flex; flex-direction:column; gap:16px; min-height:0; }
+
+.conserved{ flex-shrink:0; display:flex; flex-direction:column; }
+#conservedPlot{
+  height:200px; width:100%; flex-shrink:0; overflow:hidden;
+  background:var(--surface-2); border-radius:10px; border:1px solid var(--border);
+}
+.conserved-note{ font-size:.72rem; color:var(--text-muted); margin-top:6px; line-height:1.4; }
+
+.examples-panel{ flex:1; min-height:0; display:flex; flex-direction:column; }
+.examples-list{
+  flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; min-height:0;
+}
+.example-card{
+  display:flex; flex-direction:column; gap:2px; text-align:left;
+  background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+  padding:10px 12px; cursor:pointer; transition:border-color .2s ease, transform .15s ease;
+  color:var(--text); font-family:'Inter',sans-serif; width:100%;
+  flex-shrink:0; /* don't let flexbox squeeze cards shorter than their text needs -
+                    that's what was causing longer cards to overlap the next one */
+}
+.example-card:hover{ background:var(--surface-2); border-color:var(--accent); transform:translateY(-1px); }
+.example-card .ex-title{ font-weight:600; font-size:.87rem; }
+.example-card .ex-desc{ font-size:.74rem; color:var(--text-muted); line-height:1.35; }
+.example-card .ex-tag{
+  font-family:'IBM Plex Mono',monospace; font-size:.62rem; text-transform:uppercase;
+  letter-spacing:.05em; color:var(--pastel); margin-top:2px;
 }
 
-.main-plot {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
+/* ---------------- FORM ELEMENTS ---------------- */
+select, input[type="text"], input[type="number"]{
+  background:var(--surface-2); color:var(--text);
+  border:1px solid var(--border); border-radius:8px;
+  padding:9px 11px; font-size:16px; font-family:'Inter',sans-serif;
+  transition:border-color .2s ease;
+  min-height:44px; /* comfortable touch target; also >=16px font stops iOS auto-zoom-on-focus */
+}
+select:hover, input:hover{ border-color:var(--accent-soft); }
+select:focus, input:focus{ outline:none; border-color:var(--accent); }
+input[type="radio"]{ accent-color:var(--accent); }
+/* Placeholder text can run longer than the typed value ever will in the
+   narrow left-hand column, so it gets a smaller size to avoid clipping;
+   the input's own font-size stays 16px (typed text + iOS zoom guard). */
+input::placeholder{ font-size:.82rem; color:var(--text-muted); opacity:.8; }
+
+button, header nav a, .example-card{ touch-action:manipulation; }
+
+button{
+  font-family:'Inter',sans-serif; font-weight:600; font-size:.86rem;
+  border-radius:999px; cursor:pointer; border:none;
+  background:var(--accent); color:#fff;
+  padding:10px 18px; min-height:44px; transition:transform .2s ease, background .2s ease;
+}
+button:hover{ background:var(--accent-soft); transform:translateY(-1px); }
+
+/* ---------------- FOOTER ---------------- */
+footer{
+  border-top:1px solid var(--border); text-align:center;
+  padding:16px; color:var(--text-muted);
+  font-family:'IBM Plex Mono',monospace; font-size:.72rem; flex-shrink:0; line-height:1.6;
+}
+footer a{ color:var(--accent-soft); text-decoration:underline; }
+footer a:hover{ color:var(--accent); }
+
+/* ---------------- LEARNING / TABLE OF CONTENTS ---------------- */
+.table-of-contents{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:16px; display:flex; flex-direction:column; overflow-y:auto; min-height:0; height:100%;
+}
+.table-of-contents h2{
+  font-family:'Space Grotesk',sans-serif; font-size:1rem; font-weight:600;
+  text-align:left; margin-bottom:14px;
+}
+.table-of-contents ul{ list-style:none; }
+.table-of-contents li{ margin:2px 0; }
+.table-of-contents a{
+  display:block; color:var(--text-muted); font-size:.88rem;
+  padding:8px 10px; border-radius:8px; transition:background .2s ease, color .2s ease;
+}
+.table-of-contents a:hover{ color:var(--text); background:var(--surface-2); }
+
+.reading-body{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:36px; width:100%; height:100%; overflow-y:auto;
+}
+.reading-body h1{
+  font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:1.9rem;
+  margin-bottom:18px; line-height:1.2;
+}
+.reading-body h2{
+  font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:1.3rem;
+  margin:28px 0 12px;
+}
+.reading-body h3{ font-size:1rem; font-weight:600; margin:16px 0 6px; color:var(--pastel); }
+.reading-body p{ color:var(--text-muted); line-height:1.7; margin-bottom:14px; font-size:.95rem; }
+.reading-body pre, .reading-body code{
+  background:var(--surface-2); border:1px solid var(--border);
+  padding:.75rem 1rem; border-radius:8px; overflow-x:auto; display:block;
+  color:var(--accent-soft); margin:1rem 0; font-family:'IBM Plex Mono',monospace; font-size:.85rem;
+}
+.reading-body img{ max-width:100%; border-radius:10px; border:1px solid var(--border); margin:1rem auto; display:block; }
+.reading-body a{ color:var(--accent-soft); text-decoration:underline; }
+.reading-body a:hover{ color:var(--accent); }
+.reading-body ul, .reading-body ol{ margin:0 0 14px 1.4rem; line-height:1.7; color:var(--text-muted); }
+.reading-body ul li, .reading-body ol li{ color:var(--text); margin-bottom:6px; }
+.reading-body table{
+  width:100%; border-collapse:collapse; margin:1rem 0;
+  background:var(--surface-2); border:1px solid var(--border); border-radius:10px; overflow:hidden;
+}
+.reading-body th, .reading-body td{
+  padding:10px 14px; text-align:left; border-bottom:1px solid var(--border); font-size:.9rem;
+}
+.reading-body th{
+  font-family:'IBM Plex Mono',monospace; font-size:.72rem; text-transform:uppercase;
+  letter-spacing:.05em; color:var(--pastel); background:var(--surface);
+}
+.reading-body tr:last-child td{ border-bottom:none; }
+.reading-body figure{ margin:1rem 0; text-align:center; }
+.reading-body hr{ border:none; border-top:1px solid var(--border); margin:20px 0; }
+
+/* ---------------- SCROLLBARS ---------------- */
+.inputs-fields::-webkit-scrollbar, .table-of-contents::-webkit-scrollbar,
+.reading-body::-webkit-scrollbar, .examples-list::-webkit-scrollbar{ width:8px; }
+.inputs-fields::-webkit-scrollbar-thumb, .table-of-contents::-webkit-scrollbar-thumb,
+.reading-body::-webkit-scrollbar-thumb, .examples-list::-webkit-scrollbar-thumb{
+  background:var(--border); border-radius:4px;
+}
+.inputs-fields::-webkit-scrollbar-thumb:hover, .table-of-contents::-webkit-scrollbar-thumb:hover,
+.reading-body::-webkit-scrollbar-thumb:hover, .examples-list::-webkit-scrollbar-thumb:hover{
+  background:var(--accent);
 }
 
-#mainPlot {
-  flex: 1 1 auto;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  margin-top: 1vh;
-  background: #0d0d0d;
-  border-radius: 0.8vh;
-  /*border: 1px solid #222;*/
+/* ---------------- RESPONSIVE ---------------- */
+@media (max-width:1150px){
+  .layout{ grid-template-columns: 220px 1fr 260px; }
+  .learning-page .layout{ grid-template-columns: 220px 1fr; }
 }
 
-/* Ensure Plotly internal SVGs honor container sizes */
-.js-plotly-plot, .plot-container, .svg-container {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* RIGHT COLUMN */
-.right-column {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 0;
-}
-
-.conserved,
-.errors {
-  background-color: #1a1a1a;
-  border-radius: 0.8vh;
-  padding: 1vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  min-height: 0;
-  border: 1px solid #333;
-}
-
-.conserved {
-  margin-bottom: 2%;
-}
-
-#conservedPlot,
-#errorPlot {
-  width: 100%;
-  height: 100%;
-  background: #0d0d0d;
-  border-radius: 0.8vh;
-  margin-top: 1vh;
-  border: 1px solid #222;
-}
-
-/* FOOTER */
-footer {
-  background-color: #111;
-  text-align: center;
-  padding: 0.5rem;
-  flex-shrink: 0;
-  font-size: 0.9rem;
-  height: 8vh;
-  min-height: 40px;
-  color: #aaa;
-  border-top: 2px solid #00bcd4;
-}
-
-/* DROPDOWNS & INPUTS */
-select, input, button {
-  background-color: #0d0d0d;
-  color: #e0e0e0;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 0.5rem;
-  font-size: 1rem;
-}
-
-select:hover, button:hover, input:hover {
-  border-color: #00bcd4;
-}
-
-button {
-  background-color: #00bcd4;
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-button:hover {
-  background-color: #0097a7;
-}
-
-/* TABLE OF CONTENTS MENU */
-.table-of-contents {
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 0.8vh;
-  padding: 0.75vh;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  min-height: 0;
-  height: 100%;
-}
-
-.table-of-contents h2 {
-  color: #e0e0e0;
-  font-size: 1.1rem;
-  text-align: center;
-  margin-bottom: 1rem;
-  margin-top: 0.5rem;
-}
-
-.table-of-contents ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  flex: 1;
- }
-
-.table-of-contents li {
-  margin: 0.3rem 0;
-  border: 0px;
-}
-
-.table-of-contents a {
-  display: block;
-  color: #e0e0e0;
-  text-decoration: none;
-  padding: 0.6rem 0.8rem;
-  border-radius: 6px;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.table-of-contents a:hover {
-  color: #ff9800;
-}
-
-/* Optional scrollbar styling */
-.table-of-contents::-webkit-scrollbar {
-  width: 8px;
-}
-
-.table-of-contents::-webkit-scrollbar-thumb {
-  background-color: #333;
-  border-radius: 4px;
-}
-
-.table-of-contents::-webkit-scrollbar-thumb:hover {
-  background-color: #00bcd4;
-}
-
-
-.inputs::-webkit-scrollbar,
-.left-column ul::-webkit-scrollbar {
-  width: 8px;
-}
-
-.inputs::-webkit-scrollbar-thumb,
-.left-column ul::-webkit-scrollbar-thumb {
-  background-color: #333;
-  border-radius: 4px;
-}
-
-.inputs::-webkit-scrollbar-thumb:hover,
-.left-column ul::-webkit-scrollbar-thumb:hover {
-  background-color: #00bcd4;
-}
-
-.reading-body {
-  padding: 0.75vh;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  background-color: #1a1a1a;
-  border-radius: 1vh;
-  border: 1px solid #333;
-}
-
-/* HEADINGS */
-.reading-body h1,
-.reading-body h2,
-.reading-body h3 {
-  color: #e0e0e0;
-  text-align: center;
-  margin-bottom: 1rem;
-  margin-top: 0.5rem;
-  line-height: 1.3;
-  font-weight: bold;
-}
-
-.reading-body h1 { font-size: 2rem; }
-.reading-body h2 { font-size: 1.6rem; }
-.reading-body h3 { font-size: 1rem; font-weight: normal; margin-bottom: 0; margin-top: 0;}
-
-/* PARAGRAPHS */
-.reading-body p {
-  padding: 1rem;
-  color: #e0e0e0;
-  line-height: 1.5;
-}
-
-/* CODE BLOCKS */
-.reading-body pre,
-.reading-body code {
-  background-color: #0d0d0d;
-  border: 1px solid #333;
-  padding: 0.75rem 1rem;
-  border-radius: 0.8vh;
-  overflow-x: auto;
-  display: block;
-  color: #00e5ff;
-  margin: 1rem 0;
-  font-size: 0.95rem;
-}
-
-/* IMAGES / DIAGRAMS */
-.reading-body img {
-  max-width: 100%;
-  border-radius: 0.8vh;
-  border: 1px solid #333;
-  margin: 1rem 0;
-}
-
-/* INLINE LINKS */
-.reading-body a {
-  color: #00bcd4;
-  text-decoration: underline;
-}
-
-.reading-body a:hover {
-  color: #ff9800;
-}
-
-/* LISTS */
-.reading-body ul,
-.reading-body ol {
-  margin: 1rem 0 1rem 2rem;
-  line-height: 1.5;
-}
-
-.reading-body figure {
-  margin: 1rem 0;
-  text-align: center;
-}
-
-/* RESPONSIVE SCALING */
-@media (max-width: 1200px) {
-  header .site-name { font-size: 1.1rem; }
-  header nav a { font-size: 0.8rem; }
-  .layout { grid-template-columns: 18% 1fr 27%; gap: 0.8%; }
-}
-
-@media (max-width: 900px) {
-  .layout { grid-template-columns: 22% 1fr 28%; }
-}
-
-@media (max-width: 700px) {
-  .layout {
-    grid-template-columns: 100%;
-    grid-template-rows: 1fr auto;
-    overflow-y: auto;
+/* ---- Mobile / tablet: single natural-scrolling column ----
+   Below 900px we stop trying to fit everything into one screen with
+   independently-scrolling inner panels (that pattern fights the page
+   scroll and the address bar's effect on 100vh on phones). Instead the
+   whole page scrolls normally, panels size to their content, and the
+   plot is reordered to the top - right after picking an orbit type -
+   since that's what people actually came to look at. */
+@media (max-width:900px){
+  html, body{ height:auto; }
+  body{ min-height:100vh; }
+  main{ min-height:0; }
+  .layout{
+    grid-template-columns:1fr;
+    grid-template-rows:auto;
+    padding:12px; gap:12px;
   }
-  .right-column { flex-direction: row; gap: 2%; }
-  .conserved, .errors { flex: 1; }
-}
+  .learning-page .layout{ grid-template-columns:1fr; }
 
-@media (max-width: 1200px) {
-  .learning-page .layout {
-    grid-template-columns: 18% 1fr !important;
+  /* Plot first (it's what people came for), then the quick-pick examples
+     alongside the conserved-error diagnostic, then the full manual
+     controls (type + detailed inputs + run) last for anyone who wants them. */
+  .center{ order:1; }
+  .diagnostics{ order:2; }
+  .controls{ order:3; }
+
+  /* Let panels grow to their content instead of scrolling internally */
+  .inputs-fields, .examples-list{
+    overflow-y:visible; min-height:0; flex:none;
+  }
+  .center, .diagnostics, .controls{ min-height:0; }
+
+  #mainPlot{ height:65vh; min-height:340px; flex:none; }
+  #conservedPlot{ height:220px; flex-shrink:0; }
+
+  .table-of-contents, .reading-body{
+    height:auto; overflow-y:visible;
   }
 }
 
-@media (max-width: 900px) {
-  .learning-page .layout {
-    grid-template-columns: 22% 1fr !important;
-  }
+@media (max-width:640px){
+  header .header-inner{ padding:10px 14px; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .site-name{ font-size:1rem; }
+  header nav{ width:100%; justify-content:center; }
+  header nav a{ padding:8px 12px; font-size:.8rem; flex:1; text-align:center; }
+  .layout{ padding:10px; gap:10px; }
+  .panel-box{ padding:14px; }
+  .reading-body{ padding:20px; }
+  #mainPlot{ height:55vh; min-height:300px; }
 }
-
-@media (max-width: 700px) {
-  .learning-page .layout {
-    grid-template-columns: 100% !important;
-  }
-}
-
-

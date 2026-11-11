@@ -17,19 +17,24 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Relative Motion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class = "learning-page">
   <header>
-    <div class="site-name">Learning - Relative Motion</div>
-    <nav>
-      <a href="index.html">Plotting</a>
-      <a href="learning.html">Learning</a>
-      <a href="resources.html">Resources</a>
-    </nav>
+    <div class="header-inner">
+      <div class="site-name">Learning - Relative Motion</div>
+      <nav>
+        <a href="index.html">Plotting</a>
+        <a href="learning.html" class="active">Learning</a>
+        <a href="resources.html">Resources</a>
+      </nav>
+    </div>
   </header>
 
-  <main class="layout">
+  <main>
+    <div class="layout">
     <div class="table-of-contents">
       <h2>Table of Contents</h2>
       <ul>
@@ -148,6 +153,29 @@
     <p>
       When transferring between the two states, it is recommended to transfer at the lowest total change in velocity to reduce the cost of a satellite. It should be observed that the minimum times occur around when a full period happens (at about 6.28 second intervals for this example).
     </p>
+    <h2>J2 Perturbations</h2>
+    <h3>Information from Bate, Mueller, White &amp; Saylor's <i>Fundamentals of Astrodynamics</i>, and Battin's MIT OpenCourseWare Astrodynamics lectures</h3>
+    <p>
+      The HCW and two-body derivations on this website both assume Earth is a perfect, uniform sphere - but Earth is actually slightly flattened at the poles and bulges at the equator. The dominant effect of that bulge on a satellite's orbit is called the <b>J2 perturbation</b> ($J_2 \approx 1.08263\times 10^{-3}$ for Earth), and it's the reason the Two-Body and HCW math on this site's other pages is described as "unperturbed" rather than a complete model of real-world orbits.
+    </p>
+    <p>
+      Rather than changing an orbit's size or shape, J2's main effect is <i>secular</i> - it steadily rotates the orbit's orientation over time. Two of the classical orbital elements introduced on the Two-Body page drift at a constant rate because of it: the right ascension of the ascending node $\Omega$ and the argument of periapsis $\omega$.
+    </p>
+    $$
+    \begin{aligned}
+    \dot\Omega &= -\frac{3}{2}\,n\,J_2\left(\frac{R_E}{p}\right)^2\cos i \\
+    \dot\omega &= \frac{3}{4}\,n\,J_2\left(\frac{R_E}{p}\right)^2\left(4 - 5\sin^2 i\right)
+    \end{aligned}
+    $$
+    <p>
+      where $n$ is the mean motion, $R_E$ is Earth's equatorial radius, and $p = a(1-e^2)$. For a roughly ISS-like LEO orbit ($a = 6778$ km, $e \approx 0$, $i = 51.6°$), this works out to $\dot\Omega \approx -5.00°/\text{day}$ and $\dot\omega \approx 3.74°/\text{day}$ - small per-orbit, but compounding into tens of degrees of drift per month if left uncorrected.
+    </p>
+    <p>
+      This same formula is also how mission designers deliberately choose a <b>sun-synchronous</b> orbit: picking the inclination that makes $\dot\Omega$ exactly match Earth's average rate around the Sun ($360°/365.24$ days $\approx 0.9856°/\text{day}$) keeps the orbital plane at a fixed angle relative to the Sun year-round, which is why so many Earth-observation satellites sit near $i \approx 97$-$98°$ - for this same example orbit, the sun-synchronous inclination works out to about $97.0°$.
+    </p>
+    <p>
+      This is exactly the effect the HCW equation assumes away (as mentioned above, it takes an idealized, unperturbed chief orbit), and it's what motivates using orbital elements for propagation in the first place - a perturbation like J2 that changes $\Omega$ and $\omega$ at a steady rate is easy to add into an element-based propagator like the DOE method below, since it only means giving those two elements their own time-dependent drift; adding the same physical effect into a raw ECI state vector would mean re-deriving the perturbing acceleration from scratch.
+    </p>
     <h2>Differential Orbit Element Propagation</h2>
     <h3>Information from Vallado's <i>Fundamentals of Astrodynamics and Applications.</i></h3>
     <p>
@@ -157,17 +185,17 @@
       The reason that the DOE propagator is considered against HCW is due to accuracy and time steps. The HCW equation is based on linearized equations, thus its accuracy lowers as time steps are increased or when large jumps in motion occur. The HCW equation also uses a state vector, which is susceptible to quick oscillations. These oscillations can cause an inaccurate plotting of the satellite over time. Finally, the HCW equation assumes a near-circular chief satellite orbit and that there are no J2 perturbations from the Earth. Thus, the HCW equation is best used for design and estimation of early mission proposals.
     </p>
     <p>
-      Unlike the HCW equation, the Two-Body propagator uses a numerical solution to solve the interceptor satellite’s motion. By using the DOEs, the problem of fast oscillations is replaced by slow, long oscillations. These oscillations are only caused by forces such as the Earth’s J2 perturbations. Since J2 perturbations commonly use orbital elements to show how a satellite drifts over time, it is easy to implement into the DOE propagation.
+      Unlike the HCW equation, the Two-Body propagator used for DOE propagation now uses the exact closed-form universal-variable solution described on the Two-Body page - not a numerical approximation at all. By using the DOEs, the problem of fast oscillations is replaced by slow, long oscillations. These oscillations are only caused by forces such as the Earth's J2 perturbations. Since J2 perturbations commonly use orbital elements to show how a satellite drifts over time, it is easy to implement into the DOE propagation.
     </p>
     <p>
-      Another reason to propagate through DOEs is that the HCW equation drifts slightly over time. This is due to the linearized nature of the HCW equation. Since a linearized equation takes small linear steps, the numerical error eventually stacks enough to drift the orbit of the satellite. The Two-Body propagator does not experience this problem as it accounts for such drifts. Making an example using a Low-Earth Orbit (LEO), the following figure shows how the HCW propagated orbit drifts away from the true two-body propagated orbit.
+      Another reason to propagate through DOEs is that the HCW equation drifts slightly over time. This is due to the linearized nature of the HCW equation. Since a linearized equation takes small linear steps, the numerical error eventually stacks enough to drift the orbit of the satellite. The Two-Body propagator does not experience this problem at all - since both the chief and interceptor are propagated with the exact solution, there is no truncation error to accumulate in the first place, regardless of how far forward in time the propagation runs. Making an example using a Low-Earth Orbit (LEO), the following figure shows how the HCW propagated orbit drifts away from the true two-body propagated orbit.
     </p>
     <figure>
       <img src="HCW_Drift.png" alt = "HCW Drift from the True Orbit">
-      <figcaption><b>Fig. 6</b> The drift that occurs from using the HCW equation measured against the numerical true orbit.</figcaption>
+      <figcaption><b>Fig. 6</b> The drift that occurs from using the HCW equation, measured against the exact two-body orbit.</figcaption>
     </figure>
     <p>
-      Due to the previous use of the two-body propagator, the DOE method was chosen to show the relative motion on the Plotting page of this website. To use the relative motion, select the Relative Motion option under the Type of Orbit section.
+      Due to the accuracy of the exact two-body propagator, the DOE method was chosen to show the relative motion on the Plotting page of this website. To use the relative motion, select the Relative Motion option under the Type of Orbit section.
     </p>
     <h2>The Invariant DOE Propagator</h2>
     <p>
@@ -200,10 +228,11 @@
       These elements are useful for using in a propagator as each MEE (except for $L$) is nearly constant during flight when not perturbed by J2 dynamics. Since these elements show a constant behavior, their changes are also constant. For $L$, its result is a linear equation. When taking the change of L ($\Delta L$), it shows that there is a linearly growing motion due to the mean motion. Thus, due to the simplicity of each IDOE value, they can easily be measured and analyzed for accuracy and repetition. 
     </p>
     </div>
+    </div>
   </main>
 
   <footer>
-    <p>Made By: Josh Taylor and Zack Fraser</p>
+    <p>Made By: <a href="https://taylorspace.net" target="_blank" rel="noopener">Josh Taylor</a> and Zack Fraser</p>
     <p>Contact Us: orbitplotter@gmail.com</p>
   </footer>
 

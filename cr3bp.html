@@ -17,19 +17,24 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Three-Body</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class = "learning-page">
   <header>
-    <div class="site-name">Learning - Three-Body</div>
-    <nav>
-      <a href="index.html">Plotting</a>
-      <a href="learning.html">Learning</a>
-      <a href="resources.html">Resources</a>
-    </nav>
+    <div class="header-inner">
+      <div class="site-name">Learning - Three-Body</div>
+      <nav>
+        <a href="index.html">Plotting</a>
+        <a href="learning.html" class="active">Learning</a>
+        <a href="resources.html">Resources</a>
+      </nav>
+    </div>
   </header>
 
-  <main class="layout">
+  <main>
+    <div class="layout">
     <div class="table-of-contents">
       <h2>Table of Contents</h2>
       <ul>
@@ -69,22 +74,50 @@
       \end{aligned}
       $$
       <p>
-        From here, the propagation process is very similar to the two-body problem. Velocity multiplied by the time step is added to the initial position state to find the final position state. Following, acceleration multiplied by the time step is added to the initial velocity state to find the final velocity state. This process is looped until the final desired time has been calculated.
+        From here, the acceleration needs to be integrated forward in time to find how the state evolves. An earlier version of this website's plotter did this the simplest possible way: multiply velocity by a fixed time step to update position, multiply acceleration by that same fixed step to update velocity, and loop. That method (essentially Euler's method) is easy to reason about, but its error per step is directly proportional to the step size - and in a chaotic system like the CR3BP, small errors can compound quickly.
+      </p>
+      <p>
+        Unlike the two-body problem, the CR3BP has no closed-form solution - there's no equivalent of the universal-variable trick described on the Two-Body page, so it must be integrated numerically. The Plotting page now does this with an <b>adaptive-step embedded Runge-Kutta method</b>, specifically the Dormand-Prince pair (often written RK45), rather than fixed Euler steps. The core idea: at every step, the method computes <i>two</i> different estimates of the next state - a 4th-order accurate one and a 5th-order accurate one - using the same set of intermediate evaluations of the equations of motion. The difference between those two estimates is a built-in error estimate for that step, with no extra cost.
+      </p>
+      <p>
+        If that estimated error is small, the step is accepted (using the more accurate 5th-order result) and the next step size grows a little, since a bigger step is likely still safe. If the error is too large, the step is rejected and retried with a smaller size. This lets the integrator take large steps through slowly-changing parts of an orbit and automatically shrink its steps near a close lunar flyby or other fast dynamics, rather than paying for tiny steps everywhere out of caution. In practice this reaches a tighter tolerance with far fewer total steps than the old fixed-step approach - a typical Halo orbit on this site now converges to near machine-precision energy conservation using only a few hundred adaptive steps, compared to 2,000 fixed steps previously needed for a result several orders of magnitude less accurate.
+      </p>
+      <h2>Lagrange Points</h2>
+      <p>
+        In the rotating frame used by the CR3BP, there are five special locations - the <b>Lagrange points</b>, $L_1$ through $L_5$ - where a spacecraft can sit with zero net acceleration relative to the two primaries, because gravity and the rotating frame's centrifugal effect exactly balance. $L_1$, $L_2$, and $L_3$ sit along the line connecting the primaries ($L_1$ between them, $L_2$ just beyond the smaller primary, $L_3$ on the far side of the larger one) and are unstable - a spacecraft placed exactly there will slowly drift away without station-keeping. $L_4$ and $L_5$ form equilateral triangles with the two primaries and are stable when one primary is sufficiently more massive than the other (as in the Earth-Moon and Sun-Jupiter systems), which is why they naturally collect debris (the Trojan asteroids at Jupiter's $L_4$/$L_5$ are the classic example).
+      </p>
+      <p>
+        Even though $L_1$ and $L_2$ are unstable equilibrium points themselves, they support families of <i>periodic orbits</i> around them - Lyapunov orbits (planar) and halo orbits (three-dimensional) being the most common. These don't sit still at the Lagrange point; they loop around it. The Examples menu on the Plotting page includes a halo orbit around the Earth-Moon $L_2$ point and a Lyapunov orbit around $L_1$, the Lyapunov orbit from published periodic-orbit initial conditions, and both numerically checked to close back on themselves after one period, since these orbits are notoriously sensitive to their starting state.
+      </p>
+      <h2>The Jacobi Constant</h2>
+      <p>
+        The two-body problem conserves specific energy and angular momentum separately. The CR3BP, because the frame itself is rotating, doesn't conserve either of those individually - but it does conserve one combined quantity called the <b>Jacobi constant</b>, $C$, which acts as the CR3BP's equivalent of an energy integral:
       </p>
       $$
-      \begin{aligned}
-      r_{i+1} &= r_i + v_i\Delta t \\
-      v_{i+1} &= v_i + a_i\Delta t
-      \end{aligned}
+      C = x^2 + y^2 + \frac{2(1-\mu)}{r_1} + \frac{2\mu}{r_2} - \left(\dot x^2 + \dot y^2 + \dot z^2\right)
       $$
       <p>
-        Through the propagation, nearly any three-body orbit of a spacecraft can be found. This is assuming that the celestial bodies are orbiting in a perfectly circular pattern, due to the CR3BP. Other assumptions, such as the Elliptical Restricted 3-Body Problem (ER3BP) could allow for higher accuracy with their own set of limitations. For the Plotting page of this website, the CR3BP is used for its simplicity and accuracy.
+        Because $C$ should stay exactly constant along a true trajectory, checking how much it drifts over a propagation is a direct, physically meaningful measure of an integrator's accuracy - which is exactly what the Conserved Quantity Error panel on the Plotting page shows for a CR3BP run. Unlike the Two-Body case, this error won't be at machine precision (there's no exact closed-form solution to compare against), but with the adaptive integrator it should stay small and essentially flat rather than drifting steadily upward over the course of the run.
       </p>
+      <h3>Information from Bate, Mueller, White &amp; Saylor's <i>Fundamentals of Astrodynamics</i></h3>
+      <p>
+        The Jacobi constant is also what defines the <b>zero-velocity curves</b> for a given orbit. Rearranging the Jacobi constant equation to solve for speed shows that, for a fixed value of $C$, there's a boundary in position-space where the spacecraft's speed would have to be exactly zero:
+      </p>
+      $$
+      \dot x^2 + \dot y^2 + \dot z^2 = x^2 + y^2 + \frac{2(1-\mu)}{r_1} + \frac{2\mu}{r_2} - C
+      $$
+      <p>
+        Since the left side can never be negative (it's a sum of squared velocity components), any region where the right-hand side would come out negative for a given $C$ is a region the spacecraft can <i>never reach</i> - it doesn't have enough energy to get there, regardless of direction. The boundary between reachable and forbidden regions - where speed is exactly zero - is the zero-velocity curve for that $C$. For low $C$ (high energy), nearly all of the rotating frame is reachable; for high $C$ (low energy, close to one of the Lagrange points' own value), the reachable region can pinch down to disconnected "bubbles" around each primary, physically preventing a spacecraft from transferring between them without a maneuver. This is exactly the kind of structure the NASA JPL Three-Body Periodic Orbits tool (linked on the Resources page) visualizes for real mission-design families of orbits.
+      </p>
+      <p>
+        Through this propagation, nearly any three-body orbit of a spacecraft can be found, subject to the CR3BP's core assumption that the two primaries orbit each other in a perfect circle. Other models, such as the Elliptical Restricted 3-Body Problem (ER3BP), relax that assumption for higher fidelity at the cost of additional complexity. For the Plotting page of this website, the CR3BP is used for its balance of simplicity and accuracy.
+      </p>
+    </div>
     </div>
   </main>
 
   <footer>
-    <p>Made By: Josh Taylor and Zack Fraser</p>
+    <p>Made By: <a href="https://taylorspace.net" target="_blank" rel="noopener">Josh Taylor</a> and Zack Fraser</p>
     <p>Contact Us: orbitplotter@gmail.com</p>
   </footer>
 

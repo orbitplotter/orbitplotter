@@ -3,160 +3,70 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Orbit Visualization Dashboard</title>
+  <title>Orbit Plotter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
-    <div class="site-name">Orbit Plotter</div>
-    <nav>
-      <a href="index.html">Plotting</a>
-      <a href="learning.html">Learning</a>
-      <a href="resources.html">Resources</a>
-    </nav>
+    <div class="header-inner">
+      <div class="site-name">Orbit Plotter</div>
+      <nav>
+        <a href="index.html" class="active">Plotting</a>
+        <a href="learning.html">Learning</a>
+        <a href="resources.html">Resources</a>
+      </nav>
+    </div>
   </header>
 
-  <main class="layout">
-    <div class="left-column">
-      <div class="type">
-        <h3>Type of Orbit</h3>
-        <select id="orbitType" name="orbitType">
-          <option value="2body">2 Body</option>
-          <option value="cr3bp">CR3BP</option>
-          <option value="relativemotion">Relative Motion</option>
-        </select>
+  <main>
+    <div class="layout">
+      <div class="controls panel-box">
+        <div class="type-section">
+          <h3>Type of Orbit</h3>
+          <select id="orbitType" name="orbitType">
+            <option value="2body">2 Body</option>
+            <option value="cr3bp">CR3BP</option>
+            <option value="relativemotion">Relative Motion</option>
+          </select>
+        </div>
+        <div class="inputs-fields">
+          <!-- Dynamic inputs render here -->
+        </div>
+        <button type="button" id="runBtn" class="run-btn">Run Simulation</button>
       </div>
 
-      <div class="inputs">
-        <!-- Dynamic inputs will appear here -->
+      <div class="center panel-box">
+        <div class="main-plot">
+          <div id="mainPlot"></div>
+        </div>
       </div>
-    </div>
 
-    <div class="center">
-      <div class="main-plot">
-        <div id="mainPlot"></div>
-      </div>
-    </div>
-
-    <div class="right-column">
-      <div class="conserved">
-        <div id="conservedPlot"></div>
-      </div>
-      <div class="errors">
-        <h3>Example Inputs</h3>
-        <div id="errorPlot">
-          <p>2 Body (μ=368600)</p>
-          <p>eliptic: [-1774, -2787,  6801, 6.2, -1.9, -0.1]</p>
-          <p>hyperbolic: [-5700, -2541, -14869, -4.9, -2.5, -4.4]</p>
-          <hr>
-          <p>3 Body</p>
-          <p>JPL orbits: <a href="https://ssd.jpl.nasa.gov/tools/periodic_orbits.html">3 Body Orbits</a></p>
-          <hr>
-          <p>Relative Motion (any chief eccentricity)</p>
-          <p>stable: [0, 0.001, 0.00835, 0, 0, 0, 10]</p>
-          <p>drifting: [20.5, 0.006, 4.43, 0, 0, 10]</p>
+      <div class="diagnostics">
+        <div class="conserved panel-box">
+          <h3>Conserved Quantity Error</h3>
+          <div id="conservedPlot"></div>
+          <p class="conserved-note">Run a simulation to see the expected error for that propagation method.</p>
+        </div>
+        <div class="examples-panel panel-box">
+          <h3>Examples</h3>
+          <div class="examples-list" id="examplesList">
+            <!-- Populated by app.js based on the selected orbit type -->
+          </div>
         </div>
       </div>
     </div>
   </main>
 
   <footer>
-    <p>Made By: Josh Taylor and Zack Fraser</p>
+    <p>Made By: <a href="https://taylorspace.net" target="_blank" rel="noopener">Josh Taylor</a> and Zack Fraser</p>
     <p>Contact Us: orbitplotter@gmail.com</p>
   </footer>
 
   <!-- ===== JS Libraries ===== -->
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
-  <script src="Main_plot.js"></script>
-  <script src="conserved.js"></script>
-  <script src="errors.js"></script>
-
-  <!-- ===== Dynamic Input Script (Updated) ===== -->
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const orbitTypeSelect = document.getElementById("orbitType");
-    const inputsDiv = document.querySelector(".inputs");
-
-    const inputGroups = {
-      "2body": `
-        <h3>Inputs:</h3>
-        <input type="text" name="mu" placeholder="μ (km^3/s^2)">
-        <input type="text" name="xpos" placeholder="x-position (km)">
-        <input type="text" name="ypos" placeholder="y-position (km)">
-        <input type="text" name="zpos" placeholder="z-position (km)">
-        <input type="text" name="xvel" placeholder="x-velocity (km/s)">
-        <input type="text" name="yvel" placeholder="y-velocity (km/s)">
-        <input type="text" name="zvel" placeholder="z-velocity (km/s)">
-        <input type="text" name="tf" placeholder="Final Time (s)">
-        <button type="button">Run</button>
-      `,
-      "cr3bp": `
-        <h3>Inputs:</h3>
-        <input type="text" name="mu3b" placeholder="μ (mass ratio)">
-        <input type="text" name="xpos" placeholder="x-position">
-        <input type="text" name="ypos" placeholder="y-position">
-        <input type="text" name="zpos" placeholder="z-position">
-        <input type="text" name="xvel" placeholder="x-velocity">
-        <input type="text" name="yvel" placeholder="y-velocity">
-        <input type="text" name="zvel" placeholder="z-velocity">
-        <input type="text" name="tf" placeholder="Final Time">
-        <button type="button">Run</button>
-      `,
-      "relativemotion": `
-        <h3>Inputs:</h3>
-        <!-- Chief Orbit Eccentricity Type -->
-    <fieldset style="margin-bottom: 10px;">
-        <legend>Chief Orbit Eccentricity</legend>
-        <label><input type="radio" name="chief_e" value="0.0" checked> 0.0 </label><br>
-        <label><input type="radio" name="chief_e" value="0.2"> 0.2 </label><br>
-        <label><input type="radio" name="chief_e" value="0.4"> 0.4 </label><br>
-        <label><input type="radio" name="chief_e" value="0.6"> 0.6 </label><br>
-        <label><input type="radio" name="chief_e" value="0.8"> 0.8 </label><br>
-    </fieldset>
-        <input type="text" name="da" placeholder="Δ semi-major axis (km)">
-        <input type="text" name="de" placeholder="Δ eccentricity">
-        <input type="text" name="di" placeholder="Δ inclination (deg)">
-        <input type="text" name="dRANN" placeholder="Δ RANN (deg)">
-        <input type="text" name="dargp" placeholder="Δ ω (km/s)">
-        <input type="text" name="dM" placeholder="Δ mean anomaly (km/s)">
-        <input type="text" name="orbits" placeholder="number of orbits">
-        <button type="button">Run</button>
-      `
-    };
-
-    function updateInputs() {
-      const selectedOrbit = orbitTypeSelect.value;
-
-      inputsDiv.style.opacity = 0;
-      setTimeout(() => {
-        inputsDiv.innerHTML = inputGroups[selectedOrbit];
-
-        const btn = inputsDiv.querySelector("button");
-        if (btn) {
-          btn.addEventListener("click", (e) => {
-            e.preventDefault();
-            runSimulation();
-          });
-        }
-
-        inputsDiv.style.opacity = 1;
-
-        if (window.Plotly?.Plots?.resize) {
-          Plotly.Plots.resize(document.getElementById('mainPlot'));
-        }
-      }, 200);
-    }
-
-    orbitTypeSelect.addEventListener("change", updateInputs);
-    updateInputs();
-
-    window.addEventListener('resize', () => {
-      if (window.Plotly?.Plots?.resize) {
-        Plotly.Plots.resize(document.getElementById('mainPlot'));
-      }
-    });
-  });
-  </script>
+  <script src="physics.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
-

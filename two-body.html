@@ -17,19 +17,24 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Two Body</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class = "learning-page">
   <header>
-    <div class="site-name">Learning - Two-Body</div>
-    <nav>
-      <a href="index.html">Plotting</a>
-      <a href="learning.html">Learning</a>
-      <a href="resources.html">Resources</a>
-    </nav>
+    <div class="header-inner">
+      <div class="site-name">Learning - Two-Body</div>
+      <nav>
+        <a href="index.html">Plotting</a>
+        <a href="learning.html" class="active">Learning</a>
+        <a href="resources.html">Resources</a>
+      </nav>
+    </div>
   </header>
 
-  <main class="layout">
+  <main>
+    <div class="layout">
     <div class="table-of-contents">
       <h2>Table of Contents</h2>
       <ul>
@@ -50,32 +55,136 @@
       <p>
         There are many topics within the subject of two-body motion. This page will be in constant development until it has completed every topic. For now, the propagation topics are prioritized.
       </p>
+      <h2>The Orbit Equation and Types of Orbits</h2>
+      <h3>Information from Weber's <i>Orbital Mechanics &amp; Astrodynamics</i> (orbital-mechanics.space)</h3>
+      <p>
+        Before getting into how an orbit is propagated, it helps to see where an orbit's <i>shape</i> comes from in the first place. Solving Newton's equation of motion for the two-body problem (the same $\ddot{\vec{r}} = -\mu\vec{r}/r^3$ shown below) leads to the <b>orbit equation</b>, which gives the distance $r$ from the central body as a function of the true anomaly $\nu$:
+      </p>
+      $$
+      r = \frac{h^2/\mu}{1 + e\cos\nu}
+      $$
+      <p>
+        Here $h$ is the specific angular momentum and $e$ is the eccentricity introduced on this page's Orbital Elements section below. This single equation describes every possible two-body orbit - it's the equation of a <b>conic section</b>, and which of the four conic types you get depends entirely on the value of $e$:
+      </p>
+      <ul>
+        <li><b>Circle</b> ($e = 0$) - constant radius, constant speed.</li>
+        <li><b>Ellipse</b> ($0 < e < 1$) - a closed, bound orbit; this is what the Two-Body page's Conserved Quantity Error panel is checking against for most inputs.</li>
+        <li><b>Parabola</b> ($e = 1$) - the exact boundary case between bound and unbound; specific energy is exactly zero.</li>
+        <li><b>Hyperbola</b> ($e > 1$) - an unbound flyby trajectory; specific energy is positive, matching the Hyperbolic Flyby example on the Examples page.</li>
+      </ul>
+      <p>
+        The closest and farthest points on a bound orbit have their own names, and the specific name depends on what body is being orbited:
+      </p>
+      <table>
+        <thead>
+          <tr><th>Central Body</th><th>Nearest Point</th><th>Farthest Point</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Earth</td><td>Perigee</td><td>Apogee</td></tr>
+          <tr><td>Sun</td><td>Perihelion</td><td>Aphelion</td></tr>
+          <tr><td>Moon</td><td>Perilune</td><td>Apolune</td></tr>
+          <tr><td>Any body (general term)</td><td>Periapsis</td><td>Apoapsis</td></tr>
+        </tbody>
+      </table>
+      <p>
+        This eccentricity-based classification is also a quick way to sanity-check an input on the Plotting page: if a Two-Body run comes back with a negative specific energy, $e$ will be less than $1$ and the orbit will close on itself (as with the Circular LEO and Eccentric Ellipse examples); a positive specific energy means $e > 1$ and the "orbit" is really a one-time flyby that never returns (the Hyperbolic Flyby example).
+      </p>
       <h2>Two-Body Propagation</h2>
       <h3>Information from Curtis's <i>Orbital Mechanics for Engineering Students</i></h3>
       <p>
-        To visually show how an orbit of a spacecraft develops over time, it is necessary to propagate it. A propagation is a mathematical process that shows how something develops over time; for example, how a spacecraft moves in space dependent on the objects surrounding it. The most common method to propagate a two-body orbit is through the equations of motion. The equations of motion are developed from the principles of acceleration found in Curtis’s <i>Orbital Mechanics for Engineering Students</i>. The following equation is the basis for two-body orbit propagation.
+        To visually show how an orbit of a spacecraft develops over time, it is necessary to propagate it. A propagation is a mathematical process that shows how something develops over time; for example, how a spacecraft moves in space dependent on the objects surrounding it. The equations of motion for the two-body problem come from Newton's law of gravitation applied to a spacecraft orbiting a much larger central body, and are developed in Curtis's <i>Orbital Mechanics for Engineering Students</i>. The following equation is the basis for two-body motion.
       </p>
       $$
-      a_{i+1} = -\frac{\mu}{r^3}r_i
+      \ddot{\vec{r}} = -\frac{\mu}{r^3}\vec{r}
       $$
       <p>
-        The propagation of the orbit comes from taking small steps and adding the previous state to the current state. Since velocity is the change of position and acceleration is the change of velocity, then these can help show how the position changes over time. The following equations show how each future step is influenced by its previous.
+        An earlier version of this website's plotter solved this equation the way most numerical textbooks introduce it: by taking small time steps and marching the state forward, accumulating a little numerical error at every step. That approach works, but it is only ever <i>approximately</i> correct, and its accuracy is tied directly to how small a step you're willing to afford.
+      </p>
+      <p>
+        The two-body problem is special, though - unlike the three-body problem, it has an exact, closed-form solution. The Plotting page on this website now uses that exact solution instead, through what Curtis calls the <b>universal variable</b> formulation (Curtis, Ch. 3, Algorithm 3.4). "Universal" here means the same set of equations works whether the orbit is a circle, an ellipse, a parabola, or a hyperbola, without needing separate formulas for each case. The trade-off is that it takes a bit more machinery to set up than the simple stepping approach - but once set up, there is no truncation error left to accumulate, no matter how far forward in time you propagate.
+      </p>
+      <h3>The Universal Anomaly and Stumpff Functions</h3>
+      <p>
+        Given an initial position $\vec{r}_0$ and velocity $\vec{v}_0$, define $r_0 = |\vec{r}_0|$, $v_0 = |\vec{v}_0|$, and the initial radial velocity $v_{r0} = \frac{\vec{r}_0 \cdot \vec{v}_0}{r_0}$. The reciprocal of the semi-major axis, $\alpha = 1/a$, is found from the vis-viva relationship and tells you the orbit's shape ($\alpha > 0$ for an ellipse, $\alpha = 0$ for a parabola, $\alpha < 0$ for a hyperbola) without needing to know which one it is ahead of time.
+      </p>
+      $$
+      \alpha = \frac{2}{r_0} - \frac{v_0^2}{\mu}
+      $$
+      <p>
+        The unknown to solve for is the <b>universal anomaly</b> $\chi$, which plays the same role that the eccentric anomaly plays for an ellipse - except it's defined consistently across every conic type. It's found from the universal form of Kepler's equation, which uses two helper functions of $z = \chi^2\alpha$ called the <b>Stumpff functions</b>, $C(z)$ and $S(z)$:
       </p>
       $$
       \begin{aligned}
-      r_{i+1} &= r_i + v_i\Delta t \\
-      v_{i+1} &= v_i + a_i\Delta t \\
-      \Delta t &= t_{i+1} - t_i
+      C(z) &= \frac{1 - \cos\sqrt{z}}{z} \quad (z > 0) \\
+      S(z) &= \frac{\sqrt{z} - \sin\sqrt{z}}{\sqrt{z}^3} \quad (z > 0)
       \end{aligned}
       $$
       <p>
-        Due to the numerical nature of these equations of motion, they are considered a precise answer as long as the steps are small enough. These steps are achieved by looping through many small steps throughout the desired period. There are several programs that can create a loop until the final time is reached. These loops are known as numerical solvers. These solvers are liked within the scientific community as they allow a user to determine their precision over the course of the running code. For Python, the package Scypi includes a solver called solve_ivp (found in scypi.integrate.solve_ivp) that allows for such repetition. The Plotting page of this website uses a similar package and process to display the two-body orbit. 
+        (For $z < 0$ these switch to hyperbolic sine/cosine forms, and both have well-behaved limits as $z \to 0$, which is what makes the same formula handle every orbit type.) The universal Kepler equation is then:
       </p>
+      $$
+      \sqrt{\mu}\,\Delta t = \chi^3 S(z) + \frac{v_{r0}r_0}{\sqrt{\mu}}\chi^2 C(z) + r_0\chi\left(1 - z\,S(z)\right)
+      $$
+      <p>
+        This is solved for $\chi$ with a Newton-Raphson iteration - typically converging to machine precision in just three or four iterations. Once $\chi$ is known, the final position and velocity are found using the Lagrange coefficients $f$, $g$, $\dot f$, and $\dot g$:
+      </p>
+      $$
+      \begin{aligned}
+      f &= 1 - \frac{\chi^2}{r_0}C(z) & g &= \Delta t - \frac{\chi^3}{\sqrt{\mu}}S(z) \\
+      \vec{r} &= f\vec{r}_0 + g\vec{v}_0 & r &= |\vec{r}| \\
+      \dot f &= \frac{\sqrt{\mu}}{r\,r_0}\left(z\,S(z) - 1\right)\chi & \dot g &= 1 - \frac{\chi^2}{r}C(z) \\
+      \vec{v} &= \dot f\vec{r}_0 + \dot g\vec{v}_0
+      \end{aligned}
+      $$
+      <p>
+        A useful sanity check on any implementation of this method is that $f\dot g - \dot f g$ should equal exactly $1$ - if it doesn't, something upstream is wrong. Since this whole process is closed-form arithmetic rather than an accumulating loop, specific angular momentum and specific energy come out conserved to floating-point precision (around $10^{-10}\%$ relative error) no matter how far ahead $\Delta t$ reaches. That's exactly what the Conserved Quantity Error panel on the Plotting page is checking for a Two-Body run.
+      </p>
+      <h2>Orbital Elements</h2>
+      <p>
+        A state vector $(\vec{r}, \vec{v})$ fully describes where a spacecraft is and how fast it's moving at one instant, but it doesn't say much about the <i>shape</i> of the orbit at a glance. <b>Classical orbital elements</b> describe the same physical orbit using six quantities that are individually meaningful: the orbit's size, its shape, its tilt, and where the spacecraft is along it.
+      </p>
+      <ul>
+        <li><b>Semi-major axis $a$</b> - half the longest diameter of the ellipse; sets the orbit's size and period.</li>
+        <li><b>Eccentricity $e$</b> - how stretched the ellipse is, from $0$ (circle) approaching $1$ (very elongated).</li>
+        <li><b>Inclination $i$</b> - the tilt of the orbital plane relative to a reference plane (typically Earth's equator).</li>
+        <li><b>Right ascension of the ascending node $\Omega$</b> - where the orbit crosses the reference plane heading "upward."</li>
+        <li><b>Argument of periapsis $\omega$</b> - where the closest point of the orbit sits, measured from that crossing.</li>
+        <li><b>True anomaly $\nu$ (or mean anomaly $M$)</b> - where the spacecraft actually is along the orbit right now.</li>
+      </ul>
+      <p>
+        The last element is what separates a full state description from just the orbit's shape. If you only specify $a$, $e$, $i$, $\Omega$, and $\omega$, you've pinned down the entire ellipse in space - but not where on it the spacecraft sits at this moment. That's exactly the distinction the Plotting page's Orbital Elements input mode makes: leave the "Spacecraft Position" field on Shape Only, and it draws the bare ellipse; specify a true or mean anomaly, and it also places (and propagates from) an actual spacecraft on that ellipse.
+      </p>
+      <p>
+        Converting elements to a state vector starts in the orbit's own <b>perifocal frame</b> - a 2D coordinate system with its origin at the focus, $x$ pointing toward periapsis. Given the true anomaly $\nu$ and the semi-latus rectum $p = a(1-e^2)$:
+      </p>
+      $$
+      \begin{aligned}
+      r &= \frac{p}{1 + e\cos\nu} \\
+      \vec{r}_{pf} &= \big[\, r\cos\nu,\ \ r\sin\nu,\ \ 0 \,\big] \\
+      \vec{v}_{pf} &= \left[-\sqrt{\tfrac{\mu}{p}}\sin\nu,\ \ \sqrt{\tfrac{\mu}{p}}\left(e+\cos\nu\right),\ \ 0\right]
+      \end{aligned}
+      $$
+      <p>
+        This perifocal-frame vector is then rotated into the reference (ECI) frame by three sequential rotations - by $\omega$ about the orbit-normal axis, by $i$ about the line of nodes, and by $\Omega$ about the reference pole - combined into a single $3\times 3$ rotation matrix $R(\Omega, i, \omega)$:
+      </p>
+      $$
+      \vec{r} = R(\Omega,i,\omega)\,\vec{r}_{pf} \qquad \vec{v} = R(\Omega,i,\omega)\,\vec{v}_{pf}
+      $$
+      <p>
+        If you're given mean anomaly $M$ instead of true anomaly (mean anomaly is the one that advances linearly with time, so it's the natural choice if you're tracking where a spacecraft is after some elapsed time), one extra step is needed first: Kepler's equation, $M = E - e\sin E$, is solved for the eccentric anomaly $E$ with Newton-Raphson, and then $\nu$ is recovered from $E$:
+      </p>
+      $$
+      \nu = 2\arctan\!\left(\sqrt{\frac{1+e}{1-e}}\,\tan\frac{E}{2}\right)
+      $$
+      <p>
+        Both the "shape only" ellipse drawn on the Plotting page and the relative-motion chief/deputy orbits (covered on the Relative Motion page) are built from this same element-to-state-vector conversion.
+      </p>
+    </div>
     </div>
   </main>
 
   <footer>
-    <p>Made By: Josh Taylor and Zack Fraser</p>
+    <p>Made By: <a href="https://taylorspace.net" target="_blank" rel="noopener">Josh Taylor</a> and Zack Fraser</p>
     <p>Contact Us: orbitplotter@gmail.com</p>
   </footer>
 
